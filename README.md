@@ -8,11 +8,10 @@ Inspired by hardware minimalism and modern, focus-driven dashboard interfaces, *
 
 ## 📱 Screenshots
 
-<img width="1216" height="3503" alt="Screenshot_2026_0522_192349 jpg" src="https://github.com/user-attachments/assets/e8ea653c-6a75-4e64-b894-d7841710e7fe" />
-<img width="1216" height="2640" alt="Screenshot_20260522_192514 jpg" src="https://github.com/user-attachments/assets/64e7c5ec-d6ad-4fc6-94a9-7df78c6ba190" />
-<img width="1216" height="2640" alt="Screenshot_20260522_192512 jpg" src="https://github.com/user-attachments/assets/39cfdd15-93bc-43c4-a8cc-bc8006de33be" />
-<img width="1216" height="3020" alt="Screenshot_2026_0522_192339 jpg" src="https://github.com/user-attachments/assets/141738cd-0301-4353-a634-5e800840d4bc" />
-
+<img width="1216" height="2640" alt="Screenshot_20260522_192512 jpg" src="https://github.com/user-attachments/assets/250eeeed-6233-4836-a51e-291db62c4a9a" />
+<img width="1216" height="2640" alt="Screenshot_20260522_192514 jpg" src="https://github.com/user-attachments/assets/bfc1c577-72b2-4323-9614-7d3c0dcb65ff" />
+<img width="1216" height="3020" alt="Screenshot_2026_0522_192339 jpg" src="https://github.com/user-attachments/assets/c00668bf-627c-4ece-8064-6d6e3449a243" />
+<img width="1216" height="3503" alt="Screenshot_2026_0522_192349 jpg" src="https://github.com/user-attachments/assets/af43b9da-4729-414a-b5e7-f1e3c35c67c9" />
 
 ---
 
