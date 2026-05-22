@@ -1,0 +1,23 @@
+# Project exclude paths
+/.gradle/
+/app/build/
+/build/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.hprof
+local.properties
+.DS_Store
+
+# Gradle
+.gradle/
+build/
+
+# Build outputs
+*.apk
+*.aar
+*.jar
+
+# Logs
+*.log
