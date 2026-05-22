@@ -2,12 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2024-05-22
+
+### Added
+- **Vertical Scrolling**: Users can now choose between horizontal and vertical scrolling for the app pages via a new setting.
+
+## [1.0.1] - 2024-05-22
+
+### Added
+- **Direct App Assignment**: Clicking an unassigned tile now opens a popup dialog to quickly select an app.
+- **Visual Assignment Cues**: Unassigned tiles are now automatically dimmed to indicate they need setup.
+- **Self-Settings Shortcut**: Tapping the "SETTINGS" tile now opens Dotz Settings directly instead of system settings.
+
 ## [1.0.0] - 2024-05-22
 
 ### Added
-- **Direct App Assignment**: Clicking an unassigned tile (one where the default app isn't installed) now opens a popup dialog to quickly select an app.
-- **Visual Assignment Cues**: Unassigned tiles are now automatically dimmed to indicate they need setup.
-- **Self-Settings Shortcut**: Tapping the "SETTINGS" tile now opens Dotz Settings directly instead of system settings.
 - **Minimalist 8x8 Grid**: Core launcher interface.
 - **Adaptive Icon**: Custom dot-grid adaptive icon for the launcher.
 - **App Selection Screen**: New dedicated screen for remapping tile assignments.

@@ -87,6 +87,7 @@ class DotzSettingsActivity : ComponentActivity() {
                     onNotificationFilterToggle = viewModel::setNotificationFilterEnabled,
                     onOpacityChange   = viewModel::setTileOpacity,
                     onGrayscaleToggle = viewModel::setGrayscaleMode,
+                    onVerticalScrollToggle = viewModel::setVerticalScrolling,
                     onDynamicBgToggle = viewModel::setDynamicBackgroundEnabled,
                     onIconPackChange  = viewModel::setIconPackPackage,
                     iconPacks         = remember { viewModel.getInstalledIconPacks() },
@@ -112,6 +113,7 @@ private fun DotzSettingsScreen(
     onNotificationFilterToggle: (Boolean) -> Unit,
     onOpacityChange: (Float) -> Unit,
     onGrayscaleToggle: (Boolean) -> Unit,
+    onVerticalScrollToggle: (Boolean) -> Unit,
     onDynamicBgToggle: (Boolean) -> Unit,
     onIconPackChange: (String?) -> Unit,
     iconPacks: List<Pair<String, String>>,
@@ -233,6 +235,14 @@ private fun DotzSettingsScreen(
                     label   = "Grayscale Mode",
                     checked = settings.grayscaleMode,
                     onToggle = onGrayscaleToggle
+                )
+            }
+
+            item {
+                SettingsToggleRow(
+                    label   = "Vertical Scrolling",
+                    checked = settings.verticalScrolling,
+                    onToggle = onVerticalScrollToggle
                 )
             }
 

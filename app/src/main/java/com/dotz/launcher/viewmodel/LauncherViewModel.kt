@@ -423,6 +423,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         iconCache.clearCache()
     }
 
+    fun setVerticalScrolling(value: Boolean) = viewModelScope.launch {
+        prefs.setVerticalScrolling(value)
+    }
+
     fun setIconPackPackage(value: String?) = viewModelScope.launch {
         prefs.setIconPackPackage(value)
         iconCache.clearCache()

@@ -20,6 +20,7 @@ data class DotzSettings(
     val useAdaptiveTheme: Boolean = false,
     val notificationFilterEnabled: Boolean = false,
     val dynamicBackgroundEnabled: Boolean = false,
+    val verticalScrolling: Boolean = false,
     /** JSON-serialized map of tileId -> packageName overrides */
     val tileOverrides: Map<Int, String> = emptyMap(),
     val tileLabels: Map<Int, String> = emptyMap(),
@@ -35,6 +36,7 @@ object PrefsKeys {
     val USE_ADAPTIVE_THEME      = booleanPreferencesKey("use_adaptive_theme")
     val NOTIFICATION_FILTER_ENABLED = booleanPreferencesKey("notification_filter_enabled")
     val DYNAMIC_BACKGROUND_ENABLED = booleanPreferencesKey("dynamic_background_enabled")
+    val VERTICAL_SCROLLING      = booleanPreferencesKey("vertical_scrolling")
     // Tile overrides stored as individual keys: tile_override_0, tile_override_1, …
     fun tileOverride(id: Int) = stringPreferencesKey("tile_override_$id")
     fun tileLabel(id: Int)    = stringPreferencesKey("tile_label_$id")
@@ -65,6 +67,7 @@ class DotzPreferencesRepository(private val context: Context) {
                 useAdaptiveTheme     = prefs[PrefsKeys.USE_ADAPTIVE_THEME]      ?: false,
                 notificationFilterEnabled = prefs[PrefsKeys.NOTIFICATION_FILTER_ENABLED] ?: false,
                 dynamicBackgroundEnabled = prefs[PrefsKeys.DYNAMIC_BACKGROUND_ENABLED] ?: false,
+                verticalScrolling    = prefs[PrefsKeys.VERTICAL_SCROLLING]      ?: false,
                 tileOverrides        = overrides,
                 tileLabels           = labels
             )
@@ -109,6 +112,10 @@ class DotzPreferencesRepository(private val context: Context) {
         context.dataStore.edit { it[PrefsKeys.DYNAMIC_BACKGROUND_ENABLED] = value }
     }
 
+    suspend fun setVerticalScrolling(value: Boolean) {
+        context.dataStore.edit { it[PrefsKeys.VERTICAL_SCROLLING] = value }
+    }
+
     suspend fun setTileOverride(tileId: Int, packageName: String, label: String) {
         context.dataStore.edit { prefs ->
             prefs[PrefsKeys.tileOverride(tileId)] = packageName
@@ -141,6 +148,7 @@ class DotzPreferencesRepository(private val context: Context) {
                 prefs[PrefsKeys.THEME_ID] = settings.themeId
                 prefs[PrefsKeys.USE_ADAPTIVE_THEME] = settings.useAdaptiveTheme
                 prefs[PrefsKeys.NOTIFICATION_FILTER_ENABLED] = settings.notificationFilterEnabled
+                prefs[PrefsKeys.VERTICAL_SCROLLING] = settings.verticalScrolling
 
                 // Clear and re-apply overrides
                 (0..11).forEach { id ->

@@ -1,9 +1,9 @@
 @file:OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 package com.dotz.launcher.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.VerticalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -68,27 +68,51 @@ fun DotzHomeScreen(
                         .weight(0.40f)
                 )
 
-                // ── Horizontal Pager (remaining area) ─────────────────────────────
-                HorizontalPager(
-                    state    = pagerState,
-                    modifier = Modifier.weight(0.60f)
-                ) { pageIndex ->
-                    val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
-                    val scaleFactor = lerp(0.95f, 1.0f, 1f - abs(pageOffset).coerceIn(0f, 1f))
+                // ── Pager (remaining area) ─────────────────────────────
+                if (uiState.settings.verticalScrolling) {
+                    VerticalPager(
+                        state    = pagerState,
+                        modifier = Modifier.weight(0.60f)
+                    ) { pageIndex ->
+                        val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
+                        val scaleFactor = lerp(0.95f, 1.0f, 1f - abs(pageOffset).coerceIn(0f, 1f))
 
-                    AppGrid(
-                        tiles         = pages[pageIndex],
-                        iconCache     = iconCache,
-                        tileOpacity   = uiState.settings.tileOpacity,
-                        grayscale     = uiState.settings.grayscaleMode,
-                        iconPackPackage = uiState.settings.iconPackPackage,
-                        showBadges    = uiState.settings.showNotificationDots,
-                        onTileTap     = onTileTap,
-                        onTileLongPress = onTileLongPress,
-                        modifier      = Modifier
-                            .fillMaxSize()
-                            .scale(scaleFactor)
-                    )
+                        AppGrid(
+                            tiles         = pages[pageIndex],
+                            iconCache     = iconCache,
+                            tileOpacity   = uiState.settings.tileOpacity,
+                            grayscale     = uiState.settings.grayscaleMode,
+                            iconPackPackage = uiState.settings.iconPackPackage,
+                            showBadges    = uiState.settings.showNotificationDots,
+                            onTileTap     = onTileTap,
+                            onTileLongPress = onTileLongPress,
+                            modifier      = Modifier
+                                .fillMaxSize()
+                                .scale(scaleFactor)
+                        )
+                    }
+                } else {
+                    HorizontalPager(
+                        state    = pagerState,
+                        modifier = Modifier.weight(0.60f)
+                    ) { pageIndex ->
+                        val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
+                        val scaleFactor = lerp(0.95f, 1.0f, 1f - abs(pageOffset).coerceIn(0f, 1f))
+
+                        AppGrid(
+                            tiles         = pages[pageIndex],
+                            iconCache     = iconCache,
+                            tileOpacity   = uiState.settings.tileOpacity,
+                            grayscale     = uiState.settings.grayscaleMode,
+                            iconPackPackage = uiState.settings.iconPackPackage,
+                            showBadges    = uiState.settings.showNotificationDots,
+                            onTileTap     = onTileTap,
+                            onTileLongPress = onTileLongPress,
+                            modifier      = Modifier
+                                .fillMaxSize()
+                                .scale(scaleFactor)
+                        )
+                    }
                 }
             }
         }
