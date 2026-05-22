@@ -14,8 +14,9 @@ local.properties
 .gradle/
 build/
 
-# Build outputs
+# Build outputs (allow specific release APK)
 *.apk
+!release/*.apk
 *.aar
 *.jar
 
