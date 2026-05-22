@@ -1,29 +1,82 @@
 # Dotz Launcher
 
-A minimalist Android launcher focused on intentional phone usage, calm UI, and reduced digital clutter.
+A minimalist, high-intentionality Android launcher designed to reduce digital clutter and foster calm, mindful smartphone usage. 
 
-Built with a monochrome design language inspired by minimalist hardware, modern dashboard UIs, and distraction-free experiences. Dotz Launcher aims to make smartphones feel simpler, cleaner, and less overwhelming without sacrificing essential everyday features like music, calls, and payments.
+Inspired by hardware minimalism and modern, focus-driven dashboard interfaces, **Dotz Launcher** transforms your device into a tool rather than a distraction. It retains instant access to core daily workflows—like payments, music, and communication—while eliminating the visual noise that triggers mindless scrolling.
 
-## Features
+---
 
-* Minimal monochrome interface
-* Clean tile-based layout
-* Distraction-free home screen
-* Quick access to essential apps
-* Smooth and lightweight experience
-* Focused usability over feature overload
+## 📱 Screenshots
 
-## Philosophy
+<p align="center">
+  <img src="176489.jpg" width="30%" alt="Dotz Launcher Home Screen Page 1" />
+  <img src="176490.jpg" width="30%" alt="Dotz Launcher Home Screen Page 2" />
+  <img src="176486.jpg" width="30%" alt="Dotz Launcher Settings Menu" />
+</p>
 
-Most launchers try to do more.
-Dotz Launcher tries to help you use your phone less — but better.
+---
 
-## Built With
+## ✨ Features
 
-* Android Studio
-* Java/Kotlin
-* AI-assisted workflow (ChatGPT, Claude, Gemini)
+* **Monochrome & High-Contrast UI:** A beautiful, grayscale-first tile interface that neutralizes eye-catching app branding.
+* **Intentional Tile-Based Layout:** Clean, large, structured touch targets for your most essential apps.
+* **Distraction Filtering:** Smart notification settings, including the ability to hide notification dots specifically for social media apps.
+* **Deep Customization:** * Adjustable tile opacity.
+    * Toggleable Grayscale and Dynamic Background modes.
+    * Custom Icon Pack support (e.g., *Viral*).
+* **Data Portability:** Quickly backup and restore your customized launcher layout and settings via simple Export/Import configurations.
+* **Lightweight & Performant:** Stripped of feature-creep to ensure an incredibly snappy, battery-efficient user experience.
 
-## Status
+---
 
-Currently in active development.
+## 🧠 Philosophy
+
+> Most launchers try to do more. 
+> **Dotz Launcher tries to help you use your phone less — but better.**
+
+In a digital landscape engineered for the attention economy, Dotz treats your home screen as a utility dashboard. By removing colorful app badges, infinite grids, and hidden algorithmic feeds, it introduces friction where you want it (mindless opening of apps) and fluid accessibility where you need it (utilities, tools, and essential communication).
+
+---
+
+## 🛠️ Built With
+
+* **IDE:** Android Studio
+* **Languages:** Java / Kotlin
+* **Workflow:** Human-directed, AI-assisted development (*ChatGPT, Claude, Gemini*)
+
+---
+
+## ⚙️ App Architecture & Package Mapping
+
+Dotz Launcher maps deep system configurations and common user utilities directly into its minimalist grid view. 
+
+| Feature Title | Underlying Android Component / Package String |
+| :--- | :--- |
+| **Phone** | `com.android.contacts` |
+| **Messages** | `com.google.android.apps.messaging` |
+| **Maps** | `com.google.android.apps.maps` |
+| **YT Music** | `com.google.android.apps.youtube.music` |
+| **GPay** | `com.google.android.apps.nbu.paisa.user` |
+| **Calendar** | `com.google.android.apps.calendar` |
+| **Keep Notes** | `com.google.android.keep` |
+| **Settings** | `com.android.settings` |
+
+---
+
+## 🚀 Status & Contribution
+
+Dotz Launcher is currently in **active development**. 
+
+Contributions, bug reports, and feature requests aimed at maintaining the core philosophy of minimalism are highly welcome. Feel free to open an issue or submit a pull request!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git checkout origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
