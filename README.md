@@ -82,7 +82,12 @@ Contributions, bug reports, and feature requests aimed at maintaining the core p
 5. Open a Pull Request
 
 ---
+## ⚠️ Note for Beta Testers (Installation)
+Because Dotz Launcher requires system-level access to display your apps and filter notifications, *Google Play Protect* may flag it as an "Unknown App" during side-loading. 
 
+To install:
+1. Tap "More Details" on the warning popup and select *"Install Anyway"*.
+2. If completely blocked, temporarily turn off "Scan apps with Play Protect" in the Play Store app settings, install the APK, and re-enable it.
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
