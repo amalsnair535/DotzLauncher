@@ -1,42 +1,29 @@
 # Dotz Launcher
 
-A minimal, grid-based Android launcher designed for focus and aesthetic simplicity. Dotz replaces distracting colorful icons with a sleek, customizable dot-based interface.
+A minimalist Android launcher focused on intentional phone usage, calm UI, and reduced digital clutter.
 
-![Launcher Icon](app/src/main/res/drawable/ic_launcher_foreground.xml)
+Built with a monochrome design language inspired by minimalist hardware, modern dashboard UIs, and distraction-free experiences. Dotz Launcher aims to make smartphones feel simpler, cleaner, and less overwhelming without sacrificing essential everyday features like music, calls, and payments.
 
-## ✨ Features
+## Features
 
-- **Minimalist 8x8 Grid**: A clean, distraction-free home screen layout.
-- **Icon Pack Support**: Compatibility with standard Android icon packs using `appfilter.xml` parsing.
-- **Intelligent App Selection**: When remapping tiles, the launcher suggests relevant apps (e.g., dialers for the Phone tile, music players for the Music tile).
-- **Detox Panel**: Quick access toggles for WiFi, Bluetooth, Mobile Data, Airplane Mode, Silent Mode, Torch, and Dark Mode.
-- **Notification Badges**: Supports both notification dots and numerical counts for communication apps.
-- **Customizable Appearance**:
-    - Adjustable tile opacity.
-    - Grayscale mode for system icons.
-    - Dynamic (Material You) theme support on Android 12+.
-- **Backup & Restore**: Export and import your launcher configurations as JSON files.
+* Minimal monochrome interface
+* Clean tile-based layout
+* Distraction-free home screen
+* Quick access to essential apps
+* Smooth and lightweight experience
+* Focused usability over feature overload
 
-## 🚀 Getting Started
+## Philosophy
 
-### Prerequisites
-- Android device running API 26 (Android 8.0) or higher.
-- Android Studio Ladybug or newer for development.
+Most launchers try to do more.
+Dotz Launcher tries to help you use your phone less — but better.
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/amalsnair535/DotzLauncher.git
-   ```
-2. Open the project in Android Studio.
-3. Build and run the `:app` module on your device.
-4. Set **Dotz Launcher** as your default home app when prompted.
+## Built With
 
-## 🛠 Built With
-- **Kotlin**: Primary programming language.
-- **Jetpack Compose**: Modern toolkit for building native UI.
-- **DataStore**: Modern data storage solution for settings.
-- **GSON**: For JSON serialization of backups.
+* Android Studio
+* Java/Kotlin
+* AI-assisted workflow (ChatGPT, Claude, Gemini)
 
-## 📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Status
+
+Currently in active development.
