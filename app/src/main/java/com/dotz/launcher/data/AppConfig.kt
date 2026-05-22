@@ -12,13 +12,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
  * @param label Display label shown under the icon
  * @param iconVector Fallback vector icon if package icon unavailable
  * @param badgeCount -1 = no badge, 0 = dot, >0 = count
+ * @param isInstalled Whether the app is currently installed on the device
  */
 data class AppTile(
     val tileId: Int,
     val packageName: String,
     val label: String,
     val iconVector: ImageVector,
-    val badgeCount: Int = -1
+    val badgeCount: Int = -1,
+    val isInstalled: Boolean = true,
 )
 
 enum class TileType {

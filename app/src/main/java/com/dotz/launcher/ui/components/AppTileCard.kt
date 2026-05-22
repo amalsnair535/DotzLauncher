@@ -48,7 +48,8 @@ fun AppTileCard(
     // Press animation
     val pressScale = remember { Animatable(1f) }
 
-    val tileBackground = DotzColors.Tile.copy(alpha = tileOpacity)
+    val baseOpacity = if (tile.isInstalled) tileOpacity else (tileOpacity * 0.4f)
+    val tileBackground = DotzColors.Tile.copy(alpha = baseOpacity)
     
     // Check cache first, then load if needed
     val cachedBitmap = remember(tile.packageName, iconPackPackage, grayscale) {

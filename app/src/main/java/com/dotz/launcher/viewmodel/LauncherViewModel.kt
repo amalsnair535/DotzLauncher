@@ -357,6 +357,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         return defaults.map { tile ->
             val pkg = settings.tileOverrides[tile.tileId] ?: resolvePackage(tile.packageName)
             val label = settings.tileLabels[tile.tileId] ?: tile.label
+            val installed = isInstalled(pkg) || pkg == getApplication<Application>().packageName
             val count = if (settings.showNotificationDots) {
                 val raw = notifCounts[pkg] ?: -1
                 if (raw > 0 && settings.showNumericalCounts && DefaultApps.numericBadgePackages.contains(pkg)) {
@@ -369,7 +370,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             } else {
                 -1
             }
-            tile.copy(packageName = pkg, label = label, badgeCount = count)
+            tile.copy(packageName = pkg, label = label, badgeCount = count, isInstalled = installed)
         }
     }
 

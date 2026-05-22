@@ -17,11 +17,14 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import com.dotz.launcher.ui.screens.AppSelectionActivity
+import com.dotz.launcher.ui.screens.AppSelectionListActivity
 import com.dotz.launcher.ui.screens.DotzHomeScreen
 import com.dotz.launcher.ui.screens.DotzSettingsActivity
 import com.dotz.launcher.ui.theme.DotzColors
 import com.dotz.launcher.ui.theme.DotzTheme
 import com.dotz.launcher.viewmodel.LauncherViewModel
+import com.dotz.launcher.data.AppTile
 
 class MainActivity : ComponentActivity() {
 
@@ -41,6 +44,7 @@ class MainActivity : ComponentActivity() {
             DotzTheme(settings = uiState.settings) {
                 var showNotifPermDialog by remember { mutableStateOf(value = false) }
                 var showDefaultLauncherDialog by remember { mutableStateOf(value = false) }
+                var tileToAssign by remember { mutableStateOf<AppTile?>(value = null) }
 
                 // Check permissions and default launcher
                 LaunchedEffect(uiState.isDefaultLauncher) {
@@ -60,7 +64,9 @@ class MainActivity : ComponentActivity() {
                         iconCache     = viewModel.iconCache,
                         onTileTap     = { tile ->
                             viewModel.onTileTapped(tile)
-                            launchApp(tile.packageName) // Always allowed from tiles
+                            handleTileClick(tile) {
+                                tileToAssign = tile
+                            }
                         },
                         onTileLongPress = { _ ->
                             hapticPulse()
@@ -101,6 +107,21 @@ class MainActivity : ComponentActivity() {
                             viewModel.openDefaultLauncherSettings()
                         }
                     }
+
+                    tileToAssign?.let { tile ->
+                        UnassignedTileDialog(
+                            tileLabel = tile.label,
+                            onDismiss = { tileToAssign = null },
+                            onSelectApp = {
+                                tileToAssign = null
+                                startActivity(
+                                    Intent(this@MainActivity, AppSelectionActivity::class.java)
+                                        .putExtra("tileId", tile.tileId)
+                                        .putExtra("tileLabel", tile.label),
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -124,16 +145,25 @@ class MainActivity : ComponentActivity() {
 
     // ── Helpers ──────────────────────────────────────────────────────────────
 
-    private fun launchApp(packageName: String) {
-        // Self-tap opens system settings
-        if (packageName == this.packageName) {
-            startActivity(Intent(Settings.ACTION_SETTINGS))
+    private fun handleTileClick(tile: AppTile, onUnassigned: () -> Unit) {
+        // Self-tap opens settings
+        if (tile.packageName == this.packageName) {
+            startActivity(Intent(this, DotzSettingsActivity::class.java))
             return
         }
-        val intent = packageManager.getLaunchIntentForPackage(packageName)
-        if (intent != null) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
+
+        if (tile.isInstalled) {
+            val intent = packageManager.getLaunchIntentForPackage(tile.packageName)
+            if (intent != null) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            } else {
+                // Should not happen if isInstalled is true, but just in case
+                onUnassigned()
+            }
+        } else {
+            // App not installed / Tile unassigned
+            onUnassigned()
         }
     }
 
@@ -205,6 +235,38 @@ private fun DefaultLauncherDialog(
         dismissButton = {
             TextButton(onClick = onDismiss) {
                 Text("SKIP", color = DotzColors.White.copy(alpha = 0.4f), fontSize = 13.sp, letterSpacing = 1.sp)
+            }
+        }
+    )
+}
+
+@Composable
+private fun UnassignedTileDialog(
+    tileLabel: String,
+    onDismiss: () -> Unit,
+    onSelectApp: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        containerColor   = DotzColors.Tile,
+        title = {
+            Text("Unassigned Tile", color = DotzColors.White, fontSize = 16.sp)
+        },
+        text = {
+            Text(
+                "No app is currently assigned to the $tileLabel tile. Would you like to select one now?",
+                color = DotzColors.White.copy(alpha = 0.7f),
+                fontSize = 14.sp
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onSelectApp) {
+                Text("SELECT APP", color = DotzColors.White, fontSize = 13.sp, letterSpacing = 1.sp)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("CANCEL", color = DotzColors.White.copy(alpha = 0.4f), fontSize = 13.sp, letterSpacing = 1.sp)
             }
         }
     )
