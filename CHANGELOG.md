@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0] - 2024-05-22
+
+### Added
+- **About Section**: New dedicated "About" screen with app information, contact details, and project links.
+- **Improved UI**: Subtle monochrome icons and matte divider lines for a cleaner aesthetic.
+- **Privacy Assurance**: Clear statement on local data storage and privacy.
+
 ## [1.0.2] - 2024-05-22
 
 ### Added

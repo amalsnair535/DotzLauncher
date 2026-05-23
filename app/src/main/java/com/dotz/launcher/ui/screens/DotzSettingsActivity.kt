@@ -94,7 +94,10 @@ class DotzSettingsActivity : ComponentActivity() {
                     onExport          = { exportLauncher.launch("dotz_backup.json") },
                     onImport          = { importLauncher.launch("application/json") },
                     isDefaultLauncher = uiState.isDefaultLauncher,
-                    onSetDefault      = viewModel::openDefaultLauncherSettings
+                    onSetDefault      = viewModel::openDefaultLauncherSettings,
+                    onAboutClick      = {
+                        startActivity(Intent(this, DotzAboutActivity::class.java))
+                    }
                 ) {
                     startActivity(Intent(this, AppSelectionListActivity::class.java))
                 }
@@ -121,6 +124,7 @@ private fun DotzSettingsScreen(
     onImport: () -> Unit,
     isDefaultLauncher: Boolean,
     onSetDefault: () -> Unit,
+    onAboutClick: () -> Unit,
     onAppSelectionClick: () -> Unit,
 ) {
     var showIconPackDialog by remember { mutableStateOf(value = false) }
@@ -282,6 +286,15 @@ private fun DotzSettingsScreen(
                         onClick = onImport
                     )
                 }
+            }
+
+            // ── Section: About ────────────────────────────────────────────
+            item { Spacer(Modifier.height(8.dp)); SectionHeader("INFO") }
+            item {
+                SettingsActionRow(
+                    label = "About Dotz",
+                    onClick = onAboutClick
+                )
             }
         }
     }

@@ -64,6 +64,13 @@
             android:label="App Selection"
             android:theme="@style/Theme.DotzLauncher" />
 
+        <!-- About Activity -->
+        <activity
+            android:name=".ui.screens.DotzAboutActivity"
+            android:exported="false"
+            android:label="About"
+            android:theme="@style/Theme.DotzLauncher" />
+
         <!-- Notification Listener Service -->
         <service
             android:name=".services.DotzNotificationService"
