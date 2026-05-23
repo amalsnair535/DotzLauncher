@@ -1,4 +1,4 @@
-# Dotz Launcher
+# Dotz Launcher PRO
 
 A minimalist, high-intentionality Android launcher designed to reduce digital clutter and foster calm, mindful smartphone usage. 
 
