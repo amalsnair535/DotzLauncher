@@ -26,6 +26,11 @@ import com.dotz.launcher.services.DotzNotificationService
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
+data class WeatherData(
+    val temp: String = "28°C",
+    val description: String = "Cloudy"
+)
+
 data class LauncherUiState(
     val page0Tiles: List<AppTile> = DefaultApps.page0Defaults,
     val page1Tiles: List<AppTile> = DefaultApps.page1Defaults,
@@ -40,6 +45,7 @@ data class LauncherUiState(
     val isAirplaneModeOn: Boolean = false,
     val isDarkModeOn: Boolean = false,
     val isDefaultLauncher: Boolean = false,
+    val weather: WeatherData = WeatherData()
 )
 
 class LauncherViewModel(application: Application) : AndroidViewModel(application) {

@@ -1,6 +1,8 @@
 package com.dotz.launcher
 
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -82,6 +84,9 @@ class MainActivity : ComponentActivity() {
                         onAirplaneToggle = viewModel::toggleAirplaneMode,
                         onDarkModeToggle = viewModel::toggleDarkMode,
                         onDataClick = viewModel::openMobileDataSettings,
+                        onWeatherClick = {
+                            openWeatherApp()
+                        }
                     )
 
                     if (showNotifPermDialog) {
@@ -175,6 +180,40 @@ class MainActivity : ComponentActivity() {
     private fun isNotificationListenerEnabled(): Boolean {
         val enabled = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
         return enabled?.contains(packageName) == true
+    }
+
+    private fun openWeatherApp() {
+        val weatherIntents = mutableListOf<Intent?>(
+            Intent(Intent.ACTION_VIEW).apply { data = Uri.parse("dynweather://") },
+            Intent("android.intent.action.WEATHER_READY"),
+            packageManager.getLaunchIntentForPackage("com.google.android.googlequicksearchbox"), // Google Weather
+            packageManager.getLaunchIntentForPackage("com.android.weather"),
+            packageManager.getLaunchIntentForPackage("com.sec.android.app.weather"), // Samsung
+            packageManager.getLaunchIntentForPackage("com.miui.weather2"), // Xiaomi
+            packageManager.getLaunchIntentForPackage("com.coloros.weather"), // Oppo
+            packageManager.getLaunchIntentForPackage("com.huawei.android.totemweather") // Huawei
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            weatherIntents.add(0, Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_APP_WEATHER) })
+        }
+
+        for (intent in weatherIntents) {
+            if (intent != null) {
+                try {
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                    return
+                } catch (_: Exception) {}
+            }
+        }
+        
+        // Fallback: Open Google Search for weather
+        try {
+            val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=weather"))
+            fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(fallbackIntent)
+        } catch (_: Exception) {}
     }
 }
 

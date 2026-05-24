@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.1.0] - 2024-05-22
+
+### Added
+- **Weather Widget**: Added real-time weather display (Temperature & Description) in the home screen header.
+- **Weather App Integration**: Tapping the weather details automatically opens your device's default weather application.
+- **Enhanced Location Permissions**: Added support for location-based services.
+
 ## [3.0.0] - 2024-05-22
 
 ### Added

@@ -1,10 +1,12 @@
 package com.dotz.launcher.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +25,7 @@ fun StaticHeader(
     isTorchOn: Boolean,
     isAirplaneModeOn: Boolean,
     isDarkModeOn: Boolean,
+    weather: com.dotz.launcher.viewmodel.WeatherData,
     onLauncherSettingsTap: () -> Unit,
     onWifiToggle: () -> Unit,
     onBluetoothToggle: () -> Unit,
@@ -31,6 +34,7 @@ fun StaticHeader(
     onAirplaneToggle: () -> Unit,
     onDarkModeToggle: () -> Unit,
     onDataClick: () -> Unit,
+    onWeatherClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var timeText by remember { mutableStateOf(currentTime()) }
@@ -49,49 +53,66 @@ fun StaticHeader(
             .fillMaxWidth()
             .padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 0.dp),
     ) {
+        // Weather (Top Right)
+        Column(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .clickable(onClick = onWeatherClick),
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = weather.temp,
+                style = DotzType.DateStyle.copy(fontSize = 18.sp),
+                color = Color.White
+            )
+            Text(
+                text = weather.description,
+                style = DotzType.DateStyle.copy(fontSize = 11.sp),
+                color = Color.White.copy(alpha = 0.6f)
+            )
+        }
+
         // Main Content (Centered)
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // Network Info
+            Box(contentAlignment = Alignment.Center) {
+                // Time (Center)
+                Text(
+                    text      = timeText,
+                    style     = DotzType.TimeStyle,
+                    textAlign = TextAlign.Center
+                )
+
+                // Network (Left of Time)
                 Text(
                     text = networkStatus,
                     style = DotzType.DateStyle.copy(fontSize = 11.sp),
-                    modifier = Modifier.width(50.dp),
-                    textAlign = TextAlign.End
+                    color = Color.White.copy(alpha = 0.5f),
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(end = 90.dp) // Offset from center
                 )
-                
-                Spacer(Modifier.width(16.dp))
 
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text      = timeText,
-                        style     = DotzType.TimeStyle,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(Modifier.height(2.dp))
-                    Text(
-                        text      = dateText,
-                        style     = DotzType.DateStyle,
-                        textAlign = TextAlign.Center
-                    )
-                }
-
-                Spacer(Modifier.width(16.dp))
-
-                // Battery Info
+                // Battery (Right of Time)
                 Text(
                     text = if (batteryLevel >= 0) "$batteryLevel%" else "--%",
                     style = DotzType.DateStyle.copy(fontSize = 11.sp),
-                    modifier = Modifier.width(50.dp),
-                    textAlign = TextAlign.Start
+                    color = Color.White.copy(alpha = 0.5f),
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(start = 90.dp) // Offset from center
                 )
             }
+
+            Spacer(Modifier.height(4.dp))
+            
+            Text(
+                text      = dateText,
+                style     = DotzType.DateStyle,
+                textAlign = TextAlign.Center
+            )
 
             Spacer(Modifier.height(16.dp))
 
