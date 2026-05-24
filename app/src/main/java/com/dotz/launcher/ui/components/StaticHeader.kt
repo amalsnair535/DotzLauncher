@@ -26,6 +26,7 @@ fun StaticHeader(
     isAirplaneModeOn: Boolean,
     isDarkModeOn: Boolean,
     weather: com.dotz.launcher.viewmodel.WeatherData,
+    showWeather: Boolean,
     onLauncherSettingsTap: () -> Unit,
     onWifiToggle: () -> Unit,
     onBluetoothToggle: () -> Unit,
@@ -54,22 +55,24 @@ fun StaticHeader(
             .padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 0.dp),
     ) {
         // Weather (Top Right)
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .clickable(onClick = onWeatherClick),
-            horizontalAlignment = Alignment.End
-        ) {
-            Text(
-                text = weather.temp,
-                style = DotzType.DateStyle.copy(fontSize = 18.sp),
-                color = Color.White
-            )
-            Text(
-                text = weather.description,
-                style = DotzType.DateStyle.copy(fontSize = 11.sp),
-                color = Color.White.copy(alpha = 0.6f)
-            )
+        if (showWeather) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .clickable(onClick = onWeatherClick),
+                horizontalAlignment = Alignment.End,
+            ) {
+                Text(
+                    text = weather.temp,
+                    style = DotzType.DateStyle.copy(fontSize = 18.sp),
+                    color = Color.White,
+                )
+                Text(
+                    text = weather.description,
+                    style = DotzType.DateStyle.copy(fontSize = 11.sp),
+                    color = Color.White.copy(alpha = 0.6f),
+                )
+            }
         }
 
         // Main Content (Centered)

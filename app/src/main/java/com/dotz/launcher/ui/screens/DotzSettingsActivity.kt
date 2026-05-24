@@ -88,6 +88,7 @@ class DotzSettingsActivity : ComponentActivity() {
                     onOpacityChange   = viewModel::setTileOpacity,
                     onGrayscaleToggle = viewModel::setGrayscaleMode,
                     onVerticalScrollToggle = viewModel::setVerticalScrolling,
+                    onWeatherToggle   = viewModel::setShowWeatherInfo,
                     onDynamicBgToggle = viewModel::setDynamicBackgroundEnabled,
                     onIconPackChange  = viewModel::setIconPackPackage,
                     iconPacks         = remember { viewModel.getInstalledIconPacks() },
@@ -117,6 +118,7 @@ private fun DotzSettingsScreen(
     onOpacityChange: (Float) -> Unit,
     onGrayscaleToggle: (Boolean) -> Unit,
     onVerticalScrollToggle: (Boolean) -> Unit,
+    onWeatherToggle: (Boolean) -> Unit,
     onDynamicBgToggle: (Boolean) -> Unit,
     onIconPackChange: (String?) -> Unit,
     iconPacks: List<Pair<String, String>>,
@@ -247,6 +249,14 @@ private fun DotzSettingsScreen(
                     label   = "Vertical Scrolling",
                     checked = settings.verticalScrolling,
                     onToggle = onVerticalScrollToggle
+                )
+            }
+
+            item {
+                SettingsToggleRow(
+                    label   = "Show Weather Info",
+                    checked = settings.showWeatherInfo,
+                    onToggle = onWeatherToggle
                 )
             }
 

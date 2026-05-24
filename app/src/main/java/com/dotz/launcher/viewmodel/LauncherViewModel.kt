@@ -433,6 +433,10 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         prefs.setVerticalScrolling(value)
     }
 
+    fun setShowWeatherInfo(value: Boolean) = viewModelScope.launch {
+        prefs.setShowWeatherInfo(value)
+    }
+
     fun setIconPackPackage(value: String?) = viewModelScope.launch {
         prefs.setIconPackPackage(value)
         iconCache.clearCache()

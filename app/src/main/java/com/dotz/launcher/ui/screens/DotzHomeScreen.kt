@@ -57,6 +57,7 @@ fun DotzHomeScreen(
                     isAirplaneModeOn = uiState.isAirplaneModeOn,
                     isDarkModeOn = uiState.isDarkModeOn,
                     weather = uiState.weather,
+                    showWeather = uiState.settings.showWeatherInfo,
                     onLauncherSettingsTap = onLauncherSettingsTap,
                     onWifiToggle = onWifiToggle,
                     onBluetoothToggle = onBluetoothToggle,

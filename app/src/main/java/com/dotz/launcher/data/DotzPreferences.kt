@@ -21,6 +21,7 @@ data class DotzSettings(
     val notificationFilterEnabled: Boolean = false,
     val dynamicBackgroundEnabled: Boolean = false,
     val verticalScrolling: Boolean = false,
+    val showWeatherInfo: Boolean = true,
     /** JSON-serialized map of tileId -> packageName overrides */
     val tileOverrides: Map<Int, String> = emptyMap(),
     val tileLabels: Map<Int, String> = emptyMap(),
@@ -37,6 +38,7 @@ object PrefsKeys {
     val NOTIFICATION_FILTER_ENABLED = booleanPreferencesKey("notification_filter_enabled")
     val DYNAMIC_BACKGROUND_ENABLED = booleanPreferencesKey("dynamic_background_enabled")
     val VERTICAL_SCROLLING      = booleanPreferencesKey("vertical_scrolling")
+    val SHOW_WEATHER_INFO       = booleanPreferencesKey("show_weather_info")
     // Tile overrides stored as individual keys: tile_override_0, tile_override_1, …
     fun tileOverride(id: Int) = stringPreferencesKey("tile_override_$id")
     fun tileLabel(id: Int)    = stringPreferencesKey("tile_label_$id")
@@ -68,6 +70,7 @@ class DotzPreferencesRepository(private val context: Context) {
                 notificationFilterEnabled = prefs[PrefsKeys.NOTIFICATION_FILTER_ENABLED] ?: false,
                 dynamicBackgroundEnabled = prefs[PrefsKeys.DYNAMIC_BACKGROUND_ENABLED] ?: false,
                 verticalScrolling    = prefs[PrefsKeys.VERTICAL_SCROLLING]      ?: false,
+                showWeatherInfo      = prefs[PrefsKeys.SHOW_WEATHER_INFO]       ?: true,
                 tileOverrides        = overrides,
                 tileLabels           = labels
             )
@@ -114,6 +117,10 @@ class DotzPreferencesRepository(private val context: Context) {
 
     suspend fun setVerticalScrolling(value: Boolean) {
         context.dataStore.edit { it[PrefsKeys.VERTICAL_SCROLLING] = value }
+    }
+
+    suspend fun setShowWeatherInfo(value: Boolean) {
+        context.dataStore.edit { it[PrefsKeys.SHOW_WEATHER_INFO] = value }
     }
 
     suspend fun setTileOverride(tileId: Int, packageName: String, label: String) {
