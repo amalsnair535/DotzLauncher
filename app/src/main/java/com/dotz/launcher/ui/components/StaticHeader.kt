@@ -77,7 +77,21 @@ fun StaticHeader(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(contentAlignment = Alignment.Center) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                // Network (Left)
+                Text(
+                    text = networkStatus,
+                    style = DotzType.DateStyle.copy(fontSize = 11.sp),
+                    color = Color.White.copy(alpha = 0.5f),
+                    modifier = Modifier.width(60.dp),
+                    textAlign = TextAlign.End
+                )
+
+                Spacer(Modifier.width(20.dp))
+
                 // Time (Center)
                 Text(
                     text      = timeText,
@@ -85,24 +99,15 @@ fun StaticHeader(
                     textAlign = TextAlign.Center
                 )
 
-                // Network (Left of Time)
-                Text(
-                    text = networkStatus,
-                    style = DotzType.DateStyle.copy(fontSize = 11.sp),
-                    color = Color.White.copy(alpha = 0.5f),
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(end = 90.dp) // Offset from center
-                )
+                Spacer(Modifier.width(20.dp))
 
-                // Battery (Right of Time)
+                // Battery (Right)
                 Text(
                     text = if (batteryLevel >= 0) "$batteryLevel%" else "--%",
                     style = DotzType.DateStyle.copy(fontSize = 11.sp),
                     color = Color.White.copy(alpha = 0.5f),
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(start = 90.dp) // Offset from center
+                    modifier = Modifier.width(60.dp),
+                    textAlign = TextAlign.Start
                 )
             }
 
