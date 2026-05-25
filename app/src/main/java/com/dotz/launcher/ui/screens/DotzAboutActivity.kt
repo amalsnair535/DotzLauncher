@@ -27,12 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.core.view.WindowCompat
+import com.dotz.launcher.R
 import com.dotz.launcher.ui.theme.DotzColors
 import com.dotz.launcher.ui.theme.DotzTheme
 import com.dotz.launcher.viewmodel.LauncherViewModel
@@ -76,7 +78,7 @@ private fun AboutScreen(onBack: () -> Unit) {
             TopAppBar(
                 title = {
                     Text(
-                        text = "ABOUT",
+                        text = stringResource(R.string.about_title),
                         fontSize = 14.sp,
                         letterSpacing = 2.sp,
                         fontWeight = FontWeight.Normal,
@@ -85,7 +87,7 @@ private fun AboutScreen(onBack: () -> Unit) {
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = DotzColors.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.content_description_back), tint = DotzColors.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
@@ -103,14 +105,14 @@ private fun AboutScreen(onBack: () -> Unit) {
         ) {
             item {
                 Text(
-                    text = "$appName ⚫",
+                    text = stringResource(R.string.about_app_name_format, appName),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = DotzColors.White
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    text = "Version $versionName",
+                    text = stringResource(R.string.about_version_format, versionName),
                     fontSize = 14.sp,
                     color = DotzColors.White.copy(alpha = 0.5f)
                 )
@@ -119,7 +121,7 @@ private fun AboutScreen(onBack: () -> Unit) {
             item {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Minimal Android launcher focused on calm and intentional phone usage.",
+                    text = stringResource(R.string.about_description),
                     fontSize = 16.sp,
                     textAlign = TextAlign.Center,
                     color = DotzColors.White.copy(alpha = 0.8f),
@@ -132,11 +134,11 @@ private fun AboutScreen(onBack: () -> Unit) {
 
             item {
                 AboutActionRow(
-                    label = "GitHub",
-                    subLabel = "amalsnair535/DotzLauncher",
+                    label = stringResource(R.string.about_github),
+                    subLabel = stringResource(R.string.about_github_path),
                     icon = Icons.Default.Code,
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, "https://github.com/amalsnair535/DotzLauncher".toUri())
+                        val intent = Intent(Intent.ACTION_VIEW, context.getString(R.string.about_github_url).toUri())
                         context.startActivity(intent)
                     }
                 )
@@ -144,15 +146,16 @@ private fun AboutScreen(onBack: () -> Unit) {
 
             item {
                 AboutActionRow(
-                    label = "Contact",
-                    subLabel = "dotzlauncher@gmail.com",
+                    label = stringResource(R.string.about_contact),
+                    subLabel = stringResource(R.string.about_contact_email),
                     icon = Icons.Default.Email,
                     trailingIcon = Icons.Default.ContentCopy,
                     onClick = {
+                        val email = context.getString(R.string.about_contact_email)
                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        val clip = ClipData.newPlainText("Dotz Contact", "dotzlauncher@gmail.com")
+                        val clip = ClipData.newPlainText(context.getString(R.string.about_contact_clip_label), email)
                         clipboard.setPrimaryClip(clip)
-                        Toast.makeText(context, "Email copied to clipboard", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.toast_email_copied), Toast.LENGTH_SHORT).show()
                     }
                 )
             }
@@ -165,7 +168,7 @@ private fun AboutScreen(onBack: () -> Unit) {
                     horizontalAlignment = Alignment.Start
                 ) {
                     Text(
-                        text = "PRIVACY",
+                        text = stringResource(R.string.about_privacy_title),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         letterSpacing = 1.5.sp,
@@ -173,7 +176,7 @@ private fun AboutScreen(onBack: () -> Unit) {
                     )
                     Spacer(Modifier.height(8.dp))
                     Text(
-                        text = "Dotz Launcher does not collect or store any personal data. All settings and configurations are kept locally on your device.",
+                        text = stringResource(R.string.about_privacy_desc),
                         fontSize = 13.sp,
                         lineHeight = 18.sp,
                         color = DotzColors.White.copy(alpha = 0.6f)
@@ -184,7 +187,7 @@ private fun AboutScreen(onBack: () -> Unit) {
             item {
                 Spacer(Modifier.height(32.dp))
                 Text(
-                    text = "Built with ❤️",
+                    text = stringResource(R.string.about_footer),
                     fontSize = 12.sp,
                     color = DotzColors.White.copy(alpha = 0.3f)
                 )

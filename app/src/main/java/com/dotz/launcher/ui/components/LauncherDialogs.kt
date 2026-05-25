@@ -2,7 +2,9 @@ package com.dotz.launcher.ui.components
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
+import com.dotz.launcher.R
 import com.dotz.launcher.ui.theme.DotzColors
 
 /**
@@ -17,23 +19,23 @@ fun NotificationPermissionDialog(
         onDismissRequest = onDismiss,
         containerColor   = DotzColors.Tile,
         title = {
-            Text("Enable Notifications", color = DotzColors.White, fontSize = 16.sp)
+            Text(stringResource(R.string.notification_permission_title), color = DotzColors.White, fontSize = 16.sp)
         },
         text = {
             Text(
-                "Allow Dotz to read notifications so it can show badge counts on your app tiles.",
+                stringResource(R.string.notification_permission_desc),
                 color = DotzColors.White.copy(alpha = 0.7f),
                 fontSize = 14.sp
             )
         },
         confirmButton = {
             TextButton(onClick = onGoToSettings) {
-                Text("ENABLE", color = DotzColors.White, fontSize = 13.sp, letterSpacing = 1.sp)
+                Text(stringResource(R.string.btn_enable), color = DotzColors.White, fontSize = 13.sp, letterSpacing = 1.sp)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("SKIP", color = DotzColors.White.copy(alpha = 0.4f), fontSize = 13.sp, letterSpacing = 1.sp)
+                Text(stringResource(R.string.btn_skip), color = DotzColors.White.copy(alpha = 0.4f), fontSize = 13.sp, letterSpacing = 1.sp)
             }
         }
     )
@@ -51,23 +53,23 @@ fun DefaultLauncherDialog(
         onDismissRequest = onDismiss,
         containerColor   = DotzColors.Tile,
         title = {
-            Text("Set as Default Launcher", color = DotzColors.White, fontSize = 16.sp)
+            Text(stringResource(R.string.default_launcher_title), color = DotzColors.White, fontSize = 16.sp)
         },
         text = {
             Text(
-                "To use Dotz as your main home screen, you need to set it as the default launcher in system settings.",
+                stringResource(R.string.default_launcher_desc),
                 color = DotzColors.White.copy(alpha = 0.7f),
                 fontSize = 14.sp
             )
         },
         confirmButton = {
             TextButton(onClick = onGoToSettings) {
-                Text("SET DEFAULT", color = DotzColors.White, fontSize = 13.sp, letterSpacing = 1.sp)
+                Text(stringResource(R.string.btn_set_default), color = DotzColors.White, fontSize = 13.sp, letterSpacing = 1.sp)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("SKIP", color = DotzColors.White.copy(alpha = 0.4f), fontSize = 13.sp, letterSpacing = 1.sp)
+                Text(stringResource(R.string.btn_skip), color = DotzColors.White.copy(alpha = 0.4f), fontSize = 13.sp, letterSpacing = 1.sp)
             }
         }
     )
@@ -86,24 +88,25 @@ fun UnassignedTileDialog(
         onDismissRequest = onDismiss,
         containerColor   = DotzColors.Tile,
         title = {
-            Text("Unassigned Tile", color = DotzColors.White, fontSize = 16.sp)
+            Text(stringResource(R.string.unassigned_tile_title), color = DotzColors.White, fontSize = 16.sp)
         },
         text = {
             Text(
-                "No app is currently assigned to the $tileLabel tile. Would you like to select one now?",
+                stringResource(R.string.unassigned_tile_desc, tileLabel),
                 color = DotzColors.White.copy(alpha = 0.7f),
                 fontSize = 14.sp
             )
         },
         confirmButton = {
             TextButton(onClick = onSelectApp) {
-                Text("SELECT APP", color = DotzColors.White, fontSize = 13.sp, letterSpacing = 1.sp)
+                Text(stringResource(R.string.btn_select_app), color = DotzColors.White, fontSize = 13.sp, letterSpacing = 1.sp)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("CANCEL", color = DotzColors.White.copy(alpha = 0.4f), fontSize = 13.sp, letterSpacing = 1.sp)
+                Text(stringResource(R.string.btn_cancel), color = DotzColors.White.copy(alpha = 0.4f), fontSize = 13.sp, letterSpacing = 1.sp)
             }
         }
     )
 }
+

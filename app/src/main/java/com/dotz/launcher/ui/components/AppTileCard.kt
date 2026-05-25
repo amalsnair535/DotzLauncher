@@ -21,11 +21,13 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
+import com.dotz.launcher.R
 import com.dotz.launcher.data.AppTile
 import com.dotz.launcher.data.IconCacheManager
 import com.dotz.launcher.ui.theme.DotzColors
@@ -157,7 +159,7 @@ fun AppTileCard(
             ) {
                 if (showCount) {
                     Text(
-                        text  = if (tile.badgeCount > 99) "99+" else tile.badgeCount.toString(),
+                        text  = if (tile.badgeCount > 99) stringResource(R.string.badge_max_count) else tile.badgeCount.toString(),
                         color = DotzColors.Background,
                         fontSize = 9.sp,
                         textAlign = TextAlign.Center

@@ -4,4 +4,84 @@
     <string name="settings_title">Dotz Settings</string>
     <string name="app_selection_title">Select App</string>
     <string name="notification_service_label">Dotz Notification Service</string>
+
+    <!-- UI Strings -->
+    <string name="notification_permission_title">Enable Notifications</string>
+    <string name="notification_permission_desc">Allow Dotz to read notifications so it can show badge counts on your app tiles.</string>
+    <string name="btn_enable">ENABLE</string>
+    <string name="btn_skip">SKIP</string>
+    
+    <string name="default_launcher_title">Set as Default Launcher</string>
+    <string name="default_launcher_desc">To use Dotz as your main home screen, you need to set it as the default launcher in system settings.</string>
+    <string name="btn_set_default">SET DEFAULT</string>
+    
+    <string name="unassigned_tile_title">Unassigned Tile</string>
+    <string name="unassigned_tile_desc">No app is currently assigned to the %s tile. Would you like to select one now?</string>
+    <string name="btn_select_app">SELECT APP</string>
+    <string name="btn_cancel">CANCEL</string>
+
+    <string name="select_app_title_format">SELECT %s APP</string>
+    <string name="search_apps_placeholder">Search apps…</string>
+    
+    <string name="settings_title_uppercase">DOTZ SETTINGS</string>
+    <string name="content_description_back">Back</string>
+    
+    <string name="section_app_selection">APP SELECTION</string>
+    <string name="section_general">GENERAL</string>
+    <string name="section_notifications">NOTIFICATIONS</string>
+    <string name="section_appearance">APPEARANCE</string>
+    <string name="section_backup_restore">BACKUP &amp; RESTORE</string>
+    <string name="section_info">INFO</string>
+    
+    <string name="settings_set_default">Set Dotz as Default Launcher</string>
+    <string name="settings_show_dots">Show Notification Dots</string>
+    <string name="settings_show_counts">Show Numerical Counts for Calls/SMS</string>
+    <string name="settings_filter_notifications">Filter Distracting Notifications</string>
+    <string name="settings_filter_notifications_desc">Hides dots for social media apps</string>
+    <string name="settings_tile_opacity">Tile Opacity</string>
+    <string name="settings_grayscale_mode">Grayscale Mode</string>
+    <string name="settings_vertical_scrolling">Vertical Scrolling</string>
+    <string name="settings_show_weather">Show Weather Info</string>
+    <string name="settings_dynamic_background">Dynamic Background</string>
+    <string name="settings_icon_pack">Icon Pack</string>
+    <string name="btn_export">Export</string>
+    <string name="btn_import">Import</string>
+    <string name="settings_about_dotz">About Dotz</string>
+    <string name="settings_app_selection">App Selection</string>
+    
+    <string name="select_icon_pack_title">Select Icon Pack</string>
+    <string name="default_icon_pack">Default</string>
+    
+    <string name="toast_settings_exported">Settings exported</string>
+    <string name="toast_settings_imported">Settings imported</string>
+    <string name="toast_import_failed">Import failed</string>
+    
+    <string name="about_title">ABOUT</string>
+    <string name="about_app_name_format">%s ⚫</string>
+    <string name="about_version_format">Version %s</string>
+    <string name="about_description">Minimal Android launcher focused on calm and intentional phone usage.</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_contact">Contact</string>
+    <string name="about_contact_clip_label">Dotz Contact</string>
+    <string name="toast_email_copied">Email copied to clipboard</string>
+    <string name="about_privacy_title">PRIVACY</string>
+    <string name="about_privacy_desc">Dotz Launcher does not collect or store any personal data. All settings and configurations are kept locally on your device.</string>
+    <string name="about_footer">Built with ❤️</string>
+    <string name="about_contact_email">dotzlauncher@gmail.com</string>
+    <string name="about_github_path">amalsnair535/DotzLauncher</string>
+    <string name="about_github_url">https://github.com/amalsnair535/DotzLauncher</string>
+    <string name="backup_filename">dotz_backup.json</string>
+    <string name="backup_mime_type">application/json</string>
+
+    <!-- Network Status -->
+    <string name="net_status_none">None</string>
+    <string name="net_status_wifi">WiFi</string>
+    <string name="net_status_lte">LTE</string>
+    <string name="net_status_eth">Eth</string>
+    <string name="net_status_online">Online</string>
+    <string name="badge_max_count">99+</string>
+
+    <!-- Formats -->
+    <string name="time_format">HH:mm</string>
+    <string name="date_format">EEE, dd MMM</string>
 </resources>

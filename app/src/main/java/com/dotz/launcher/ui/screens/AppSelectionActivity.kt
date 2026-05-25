@@ -24,11 +24,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.WindowCompat
+import com.dotz.launcher.R
 import com.dotz.launcher.data.IconCacheManager
 import com.dotz.launcher.ui.theme.DotzColors
 import com.dotz.launcher.ui.theme.DotzTheme
@@ -59,7 +61,7 @@ class AppSelectionActivity : ComponentActivity() {
             DotzTheme(settings = uiState.settings) {
                 AppSelectionScreen(
                     apps    = installedApps,
-                    title   = "SELECT $tileLabel APP",
+                    title   = stringResource(R.string.select_app_title_format, tileLabel),
                     iconCache = viewModel.iconCache,
                     iconPackPackage = uiState.settings.iconPackPackage,
                     onBack  = { finish() }
@@ -102,7 +104,7 @@ private fun AppSelectionScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = DotzColors.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.content_description_back), tint = DotzColors.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
@@ -121,7 +123,7 @@ private fun AppSelectionScreen(
                 value         = query,
                 onValueChange = { query = it },
                 modifier      = Modifier.fillMaxWidth().padding(vertical = 12.dp),
-                placeholder   = { Text("Search apps…", color = DotzColors.White.copy(alpha = 0.3f)) },
+                placeholder   = { Text(stringResource(R.string.search_apps_placeholder), color = DotzColors.White.copy(alpha = 0.3f)) },
                 leadingIcon   = { Icon(Icons.Default.Search, null, tint = DotzColors.White.copy(alpha = 0.5f)) },
                 singleLine    = true,
                 colors        = OutlinedTextFieldDefaults.colors(

@@ -15,6 +15,7 @@ import android.net.wifi.WifiManager
 import android.os.BatteryManager
 import android.os.Build
 import android.provider.Settings
+import com.dotz.launcher.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -104,11 +105,11 @@ class SystemStateManager(private val application: Application) {
             val cm = application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             val caps = cm.getNetworkCapabilities(cm.activeNetwork)
             _networkStatus.value = when {
-                caps == null -> "None"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "WiFi"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "LTE"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "Eth"
-                else -> "Online"
+                caps == null -> application.getString(R.string.net_status_none)
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> application.getString(R.string.net_status_wifi)
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> application.getString(R.string.net_status_lte)
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> application.getString(R.string.net_status_eth)
+                else -> application.getString(R.string.net_status_online)
             }
         }
     }
