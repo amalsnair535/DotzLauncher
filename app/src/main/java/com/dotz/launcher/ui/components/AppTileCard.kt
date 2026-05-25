@@ -31,6 +31,18 @@ import com.dotz.launcher.data.IconCacheManager
 import com.dotz.launcher.ui.theme.DotzColors
 import com.dotz.launcher.ui.theme.DotzType
 
+/**
+ * A UI component representing a single application tile.
+ *
+ * @param tile The [AppTile] data to display.
+ * @param iconCache The icon cache manager.
+ * @param tileOpacity The background opacity for the tile.
+ * @param grayscale Whether to render the icon in grayscale.
+ * @param iconPackPackage The package name of the active icon pack.
+ * @param showBadge Whether to show the notification badge.
+ * @param onTap Callback when the tile is tapped.
+ * @param onLongPress Callback when the tile is long-pressed.
+ */
 @Composable
 fun AppTileCard(
     tile: AppTile,

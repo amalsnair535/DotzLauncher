@@ -26,6 +26,9 @@ import com.dotz.launcher.ui.theme.DotzColors
 import com.dotz.launcher.ui.theme.DotzTheme
 import com.dotz.launcher.viewmodel.LauncherViewModel
 
+/**
+ * Activity that displays the full list of installed apps for selection.
+ */
 class AppSelectionListActivity : ComponentActivity() {
 
     private val viewModel: LauncherViewModel by viewModels()

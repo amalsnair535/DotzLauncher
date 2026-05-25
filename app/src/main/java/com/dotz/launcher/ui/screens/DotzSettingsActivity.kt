@@ -33,6 +33,9 @@ import com.dotz.launcher.ui.theme.DotzTheme
 import com.dotz.launcher.viewmodel.LauncherViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Activity for managing launcher settings and preferences.
+ */
 class DotzSettingsActivity : ComponentActivity() {
 
     private val viewModel: LauncherViewModel by viewModels()

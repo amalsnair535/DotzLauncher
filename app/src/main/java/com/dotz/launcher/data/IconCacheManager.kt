@@ -15,6 +15,12 @@ import org.xmlpull.v1.XmlPullParserFactory
 import java.io.File
 import java.io.FileOutputStream
 
+/**
+ * Manages the caching and loading of application icons, including support for icon packs
+ * and grayscale transformation.
+ *
+ * @param context The application context.
+ */
 class IconCacheManager(private val context: Context) {
 
     private val cacheDir = File(context.cacheDir, "icons")
@@ -77,6 +83,9 @@ class IconCacheManager(private val context: Context) {
         }
     }
 
+    /**
+     * Retrieves the drawable name for a given component from an icon pack's appfilter.xml.
+     */
     fun getDrawableName(componentName: String, iconPackPackage: String): String? {
         loadAppFilter(iconPackPackage)
         return iconMap[componentName] ?: iconMap["ComponentInfo{$componentName}"]
@@ -88,6 +97,9 @@ class IconCacheManager(private val context: Context) {
         return File(cacheDir, fileName)
     }
 
+    /**
+     * Retrieves a cached icon bitmap if it exists.
+     */
     fun getIcon(packageName: String, iconPackPackage: String?, grayscale: Boolean): Bitmap? {
         val file = getCacheFile(packageName, iconPackPackage, grayscale)
         if (file.exists()) {
@@ -100,6 +112,9 @@ class IconCacheManager(private val context: Context) {
         return null
     }
 
+    /**
+     * Saves an icon to the disk cache, optionally applying a grayscale filter.
+     */
     fun saveIcon(packageName: String, iconPackPackage: String?, grayscale: Boolean, drawable: Drawable) {
         val file = getCacheFile(packageName, iconPackPackage, grayscale)
         try {
@@ -133,6 +148,62 @@ class IconCacheManager(private val context: Context) {
         return dest
     }
     
+    /**
+     * Loads an icon for a package, considering the selected icon pack.
+     */
+    fun loadIcon(packageName: String, iconPackPackage: String?): Drawable? {
+        val pm = context.packageManager
+
+        // 1. Try to load from icon pack if selected
+        if (iconPackPackage != null) {
+            try {
+                val iconPackRes = pm.getResourcesForApplication(iconPackPackage)
+                val launchIntent = pm.getLaunchIntentForPackage(packageName)
+                val component = launchIntent?.component
+                
+                // 1a. Try appfilter.xml mapping
+                if (component != null) {
+                    val componentStr = component.flattenToString()
+                    val drawableName = getDrawableName(componentStr, iconPackPackage)
+                    if (drawableName != null) {
+                        val resId = iconPackRes.getIdentifier(drawableName, "drawable", iconPackPackage)
+                        if (resId != 0) return iconPackRes.getDrawable(resId, null)
+                    }
+                }
+
+                // 1b. Try package name variants
+                val resId = iconPackRes.getIdentifier(packageName.replace(".", "_"), "drawable", iconPackPackage)
+                if (resId != 0) return iconPackRes.getDrawable(resId, null)
+
+                val resIdLower = iconPackRes.getIdentifier(packageName.lowercase().replace(".", "_"), "drawable", iconPackPackage)
+                if (resIdLower != 0) return iconPackRes.getDrawable(resIdLower, null)
+                
+                // 1c. Try component variants
+                if (component != null) {
+                    val fullComp = component.flattenToString().replace(".", "_").replace("/", "_")
+                    val resId2 = iconPackRes.getIdentifier(fullComp, "drawable", iconPackPackage)
+                    if (resId2 != 0) return iconPackRes.getDrawable(resId2, null)
+
+                    val className = component.className.replace(".", "_")
+                    val resId3 = iconPackRes.getIdentifier(className, "drawable", iconPackPackage)
+                    if (resId3 != 0) return iconPackRes.getDrawable(resId3, null)
+
+                    val shortClassName = component.className.substringAfterLast(".").lowercase()
+                    val resId4 = iconPackRes.getIdentifier(shortClassName, "drawable", iconPackPackage)
+                    if (resId4 != 0) return iconPackRes.getDrawable(resId4, null)
+                }
+            } catch (_: Exception) {}
+        }
+
+        // 2. Fallback to system default
+        return try {
+            pm.getApplicationIcon(packageName)
+        } catch (_: Exception) { null }
+    }
+
+    /**
+     * Clears all cached icons from the disk.
+     */
     fun clearCache() {
         cacheDir.deleteRecursively()
         cacheDir.mkdirs()

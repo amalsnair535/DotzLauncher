@@ -37,6 +37,9 @@ import com.dotz.launcher.ui.theme.DotzColors
 import com.dotz.launcher.ui.theme.DotzTheme
 import com.dotz.launcher.viewmodel.LauncherViewModel
 
+/**
+ * Activity displaying information about the Dotz Launcher.
+ */
 class DotzAboutActivity : ComponentActivity() {
 
     private val viewModel: LauncherViewModel by viewModels()

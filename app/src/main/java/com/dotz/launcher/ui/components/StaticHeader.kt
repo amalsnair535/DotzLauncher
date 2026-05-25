@@ -15,6 +15,10 @@ import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * The top header of the launcher, displaying time, date, battery, network, weather,
+ * and the [DetoxPanel].
+ */
 @Composable
 fun StaticHeader(
     batteryLevel: Int,

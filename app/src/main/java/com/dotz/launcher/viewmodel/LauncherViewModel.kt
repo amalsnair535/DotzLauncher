@@ -31,11 +31,27 @@ data class WeatherData(
     val description: String = "Cloudy"
 )
 
+/**
+ * UI State for the Launcher screen.
+ *
+ * @property page0Tiles List of apps for the first page.
+ * @property page1Tiles List of apps for the second page.
+ * @property settings Current launcher settings from DataStore.
+ * @property batteryLevel Current battery percentage (0-100).
+ * @property networkStatus Current network type (WiFi, LTE, etc.).
+ * @property isWifiEnabled Whether Wi-Fi is currently enabled.
+ * @property isBluetoothEnabled Whether Bluetooth is currently enabled.
+ * @property isSilentMode Whether the device is in silent or vibrate mode.
+ * @property isTorchOn Whether the flashlight is currently on.
+ * @property isAirplaneModeOn Whether airplane mode is currently enabled.
+ * @property isDarkModeOn Whether system dark mode is active.
+ * @property isDefaultLauncher Whether Dotz is currently set as the default home app.
+ * @property weather Current weather information.
+ */
 data class LauncherUiState(
     val page0Tiles: List<AppTile> = DefaultApps.page0Defaults,
     val page1Tiles: List<AppTile> = DefaultApps.page1Defaults,
     val settings: DotzSettings = DotzSettings(),
-    val notificationCounts: Map<String, Int> = emptyMap(),
     val batteryLevel: Int = -1,
     val networkStatus: String = "None",
     val isWifiEnabled: Boolean = false,
@@ -48,170 +64,75 @@ data class LauncherUiState(
     val weather: WeatherData = WeatherData()
 )
 
+/**
+ * Main ViewModel for the Launcher.
+ * Handles app logic, system toggles, and state coordination between DataStore,
+ * system events, and the UI.
+ *
+ * @param application The application instance.
+ */
 class LauncherViewModel(application: Application) : AndroidViewModel(application) {
 
     private val prefs = DotzPreferencesRepository(application)
-    val iconCache = IconCacheManager(application)
+    private val systemStateManager = SystemStateManager(application)
     private val pm: PackageManager = application.packageManager
-    private val audioManager = application.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    private val cameraManager = application.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-    private val wifiManager = application.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-    private val bluetoothManager = application.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-    private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
+    
+    /** Cache manager for app icons to ensure smooth scrolling. */
+    val iconCache = IconCacheManager(application)
 
     private val _uiState = MutableStateFlow(LauncherUiState())
     val uiState: StateFlow<LauncherUiState> = _uiState.asStateFlow()
 
-    private val _batteryLevel = MutableStateFlow(-1)
-    private val _networkStatus = MutableStateFlow("None")
-    private val _isWifiEnabled = MutableStateFlow(value = false)
-    private val _isBluetoothEnabled = MutableStateFlow(value = false)
-    private val _isSilentMode = MutableStateFlow(value = false)
-    private val _isTorchOn = MutableStateFlow(value = false)
-    private val _isAirplaneModeOn = MutableStateFlow(value = false)
-    private val _isDarkModeOn = MutableStateFlow(value = false)
-    private val _refreshTrigger = MutableStateFlow(value = Unit)
+    private val _refreshTrigger = MutableStateFlow(System.currentTimeMillis())
 
-    private val batteryReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            val level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
-            val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-            if ((level != -1) && (scale != -1)) {
-                _batteryLevel.value = ((level * 100) / scale.toFloat()).toInt()
-            }
-        }
-    }
+    private val _isDefaultLauncher = _refreshTrigger.map {
+        isDefaultLauncher()
+    }.flowOn(kotlinx.coroutines.Dispatchers.Default)
+    .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
-    private val systemReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            when (intent.action) {
-                WifiManager.WIFI_STATE_CHANGED_ACTION -> {
-                    _isWifiEnabled.value = wifiManager.isWifiEnabled
-                }
-                BluetoothAdapter.ACTION_STATE_CHANGED -> {
-                    _isBluetoothEnabled.value = bluetoothAdapter?.isEnabled == true
-                }
-                AudioManager.RINGER_MODE_CHANGED_ACTION -> {
-                    _isSilentMode.value = audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL
-                }
-                Intent.ACTION_AIRPLANE_MODE_CHANGED -> {
-                    _isAirplaneModeOn.value = intent.getBooleanExtra("state", false)
-                }
-            }
-        }
-    }
-
-    private val torchCallback = object : CameraManager.TorchCallback() {
-        override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
-            super.onTorchModeChanged(cameraId, enabled)
-            _isTorchOn.value = enabled
-        }
-    }
-
-    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-        override fun onAvailable(network: Network) { updateNetwork() }
-        override fun onLost(network: Network) { updateNetwork() }
-        override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) { updateNetwork() }
-
-        private fun updateNetwork() {
-            val cm = getApplication<Application>().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val caps = cm.getNetworkCapabilities(cm.activeNetwork)
-            _networkStatus.value = when {
-                caps == null -> "None"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "WiFi"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "LTE"
-                caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "Eth"
-                else -> "Online"
-            }
-        }
-    }
+    private val _tiles = combine(
+        prefs.settingsFlow,
+        DotzNotificationService.notificationCounts,
+        _refreshTrigger
+    ) { settings, notifCounts, _ ->
+        val p0 = buildTiles(DefaultApps.page0Defaults, settings, notifCounts)
+        val p1 = buildTiles(DefaultApps.page1Defaults, settings, notifCounts)
+        p0 to p1
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DefaultApps.page0Defaults to DefaultApps.page1Defaults)
 
     init {
-        val app = getApplication<Application>()
-        
-        // Register Battery Receiver
-        val batteryFilter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            app.registerReceiver(batteryReceiver, batteryFilter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            app.registerReceiver(batteryReceiver, batteryFilter)
-        }
-
-        // Register System Toggles Receiver
-        val systemFilter = IntentFilter().apply {
-            addAction(WifiManager.WIFI_STATE_CHANGED_ACTION)
-            addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
-            addAction(AudioManager.RINGER_MODE_CHANGED_ACTION)
-            addAction(Intent.ACTION_AIRPLANE_MODE_CHANGED)
-        }
-        app.registerReceiver(systemReceiver, systemFilter)
-
-        // Initial System States
-        _isWifiEnabled.value = wifiManager.isWifiEnabled
-        _isBluetoothEnabled.value = bluetoothAdapter?.isEnabled == true
-        _isSilentMode.value = audioManager.ringerMode != AudioManager.RINGER_MODE_NORMAL
-        _isAirplaneModeOn.value = Settings.Global.getInt(app.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
-        _isDarkModeOn.value = (app.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-        
-        // Torch state tracking
-        try {
-            cameraManager.registerTorchCallback(torchCallback, null)
-        } catch (e: Exception) { e.printStackTrace() }
-
-        // Register Network Callback
-        val cm = app.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        try {
-            cm.registerNetworkCallback(NetworkRequest.Builder().build(), networkCallback)
-        } catch (e: Exception) { e.printStackTrace() }
-
         // Main UI State combination
         viewModelScope.launch {
             combine(
                 prefs.settingsFlow,
-                DotzNotificationService.notificationCounts,
-                _batteryLevel,
-                _networkStatus,
-                _isWifiEnabled,
-                _isBluetoothEnabled,
-                _isSilentMode,
-                _isTorchOn,
-                _isAirplaneModeOn,
-                _isDarkModeOn,
-                _refreshTrigger
-            ) { args: Array<Any> ->
+                _tiles,
+                systemStateManager.batteryLevel,
+                systemStateManager.networkStatus,
+                systemStateManager.isWifiEnabled,
+                systemStateManager.isBluetoothEnabled,
+                systemStateManager.isSilentMode,
+                systemStateManager.isTorchOn,
+                systemStateManager.isAirplaneModeOn,
+                systemStateManager.isDarkModeOn,
+                _isDefaultLauncher
+            ) { args ->
                 val settings = args[0] as DotzSettings
-                @Suppress("UNCHECKED_CAST")
-                val notifCounts = args[1] as Map<String, Int>
-                val battery = args[2] as Int
-                val network = args[3] as String
-                val wifi = args[4] as Boolean
-                val bt = args[5] as Boolean
-                val silent = args[6] as Boolean
-                val torch = args[7] as Boolean
-                val airplane = args[8] as Boolean
-                val dark = args[9] as Boolean
-                // args[10] is _refreshTrigger
-
-                val isDefault = isDefaultLauncher()
-
-                val p0 = buildTiles(DefaultApps.page0Defaults, settings, notifCounts)
-                val p1 = buildTiles(DefaultApps.page1Defaults, settings, notifCounts)
-                
+                val (p0, p1) = args[1] as Pair<List<AppTile>, List<AppTile>>
                 LauncherUiState(
                     page0Tiles = p0,
                     page1Tiles = p1,
                     settings = settings,
-                    notificationCounts = notifCounts,
-                    batteryLevel = battery,
-                    networkStatus = network,
-                    isWifiEnabled = wifi,
-                    isBluetoothEnabled = bt,
-                    isSilentMode = silent,
-                    isTorchOn = torch,
-                    isAirplaneModeOn = airplane,
-                    isDarkModeOn = dark,
-                    isDefaultLauncher = isDefault
+                    batteryLevel = args[2] as Int,
+                    networkStatus = args[3] as String,
+                    isWifiEnabled = args[4] as Boolean,
+                    isBluetoothEnabled = args[5] as Boolean,
+                    isSilentMode = args[6] as Boolean,
+                    isTorchOn = args[7] as Boolean,
+                    isAirplaneModeOn = args[8] as Boolean,
+                    isDarkModeOn = args[9] as Boolean,
+                    isDefaultLauncher = args[10] as Boolean
                 )
+
             }.collect { state ->
                 _uiState.value = state
             }
@@ -220,108 +141,29 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     override fun onCleared() {
         super.onCleared()
-        val app = getApplication<Application>()
-        try {
-            app.unregisterReceiver(batteryReceiver)
-            app.unregisterReceiver(systemReceiver)
-            cameraManager.unregisterTorchCallback(torchCallback)
-        } catch (e: Exception) { e.printStackTrace() }
-
-        val cm = app.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        try {
-            cm.unregisterNetworkCallback(networkCallback)
-        } catch (e: Exception) { e.printStackTrace() }
+        systemStateManager.unregisterListeners()
     }
 
     // ── System Toggles ────────────────────────────────────────────────────────
 
-    fun toggleWifi() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val intent = Intent(Settings.Panel.ACTION_WIFI)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            getApplication<Application>().startActivity(intent)
-        } else {
-            @Suppress("DEPRECATION")
-            wifiManager.isWifiEnabled = !wifiManager.isWifiEnabled
-        }
-    }
+    fun toggleWifi() = systemStateManager.toggleWifi()
+    fun toggleBluetooth() = systemStateManager.toggleBluetooth()
+    fun toggleSilentMode() = systemStateManager.toggleSilentMode()
+    fun toggleTorch() = systemStateManager.toggleTorch()
+    fun toggleAirplaneMode() = systemStateManager.toggleAirplaneMode()
+    fun toggleDarkMode() = systemStateManager.toggleDarkMode()
+    fun openMobileDataSettings() = systemStateManager.openMobileDataSettings()
 
-    fun toggleBluetooth() {
-        val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        getApplication<Application>().startActivity(intent)
-    }
-
-    fun toggleSilentMode() {
-        val app = getApplication<Application>()
-        val notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
-        if (!notificationManager.isNotificationPolicyAccessGranted) {
-            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            app.startActivity(intent)
-            return
-        }
-
-        val newMode = if (audioManager.ringerMode == AudioManager.RINGER_MODE_NORMAL) {
-            AudioManager.RINGER_MODE_VIBRATE
-        } else {
-            AudioManager.RINGER_MODE_NORMAL
-        }
-        audioManager.ringerMode = newMode
-    }
-
-    fun toggleTorch() {
-        try {
-            val cameraId = cameraManager.cameraIdList[0]
-            cameraManager.setTorchMode(cameraId, !_isTorchOn.value)
-        } catch (e: Exception) { e.printStackTrace() }
-    }
-
-    fun toggleAirplaneMode() {
-        val intent = Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        getApplication<Application>().startActivity(intent)
-    }
-
-    fun toggleDarkMode() {
-        val intent = Intent(Settings.ACTION_DISPLAY_SETTINGS)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        getApplication<Application>().startActivity(intent)
-    }
-
-    fun openMobileDataSettings() {
-        val app = getApplication<Application>()
-        Log.d("DotzAction", "openMobileDataSettings triggered")
-        
-        // Strategy: Try the most direct intent, then fall back to the most general ones.
-        // On some devices, opening a specific settings sub-page without proper permissions
-        // or if it doesn't exist can cause a SecurityException or ActivityNotFoundException.
-        
-        val actions = listOf(
-            Settings.ACTION_DATA_ROAMING_SETTINGS,
-            "android.settings.DATA_ROAMING_SETTINGS",
-            "android.settings.NETWORK_OPERATOR_SETTINGS",
-            Settings.ACTION_WIRELESS_SETTINGS,
-            Settings.ACTION_SETTINGS
-        )
-
-        for (action in actions) {
-            try {
-                Log.d("DotzAction", "Trying action: $action")
-                val intent = Intent(action)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                app.startActivity(intent)
-                Log.d("DotzAction", "Success with action: $action")
-                return
-            } catch (e: Exception) {
-                Log.w("DotzAction", "Failed action $action: ${e.message}")
-            }
-        }
-    }
-
+    /**
+     * Opens the system settings to set Dotz as the default launcher.
+     */
     fun openDefaultLauncherSettings() {
         val app = getApplication<Application>()
-        val intent = Intent(Settings.ACTION_HOME_SETTINGS)
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            Intent(Settings.ACTION_HOME_SETTINGS)
+        } else {
+            Intent(Settings.ACTION_SETTINGS)
+        }
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         try {
             app.startActivity(intent)
@@ -333,24 +175,27 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun isDefaultLauncher(): Boolean {
-        val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory(Intent.CATEGORY_HOME)
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_HOME)
+        }
         val res = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
         val currentDefault = res?.activityInfo?.packageName
         val myPackage = getApplication<Application>().packageName
         
-        return if (currentDefault == "android" || currentDefault == "com.android.settings" || currentDefault == "com.google.android.permissioncontroller") {
-            // It's the system resolver, not a specific launcher
-            false
-        } else {
-            currentDefault == myPackage
+        return when (currentDefault) {
+            null, "android", "com.android.settings", "com.google.android.permissioncontroller" -> false
+            else -> currentDefault == myPackage
         }
     }
 
     // ── Logic ────────────────────────────────────────────────────────────
 
+    /**
+     * Manually triggers a refresh of the UI state.
+     */
     fun refreshState() {
-        _refreshTrigger.value = Unit
+        systemStateManager.refreshInitialState()
+        _refreshTrigger.value = System.currentTimeMillis()
     }
 
     // ── App Logic ─────────────────────────────────────────────────────────────
@@ -393,66 +238,51 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         true
     } catch (_: PackageManager.NameNotFoundException) { false }
 
+    /**
+     * Called when a tile is tapped. Clears notifications for the package.
+     */
     fun onTileTapped(tile: AppTile) {
         DotzNotificationService.clearBadge(tile.packageName)
         DotzNotificationService.cancelNotificationsForPackage(tile.packageName)
     }
 
+    /**
+     * Updates a tile assignment.
+     */
     fun updateTileOverride(tileId: Int, packageName: String, label: String) {
         viewModelScope.launch {
             prefs.setTileOverride(tileId, packageName, label)
         }
     }
 
-    fun setShowNotificationDots(value: Boolean) = viewModelScope.launch {
-        prefs.setShowNotificationDots(value)
-    }
+    // ── Preference Updates ───────────────────────────────────────────────────
 
-    fun setShowNumericalCounts(value: Boolean) = viewModelScope.launch {
-        prefs.setShowNumericalCounts(value)
-    }
-
-    fun setNotificationFilterEnabled(value: Boolean) = viewModelScope.launch {
-        prefs.setNotificationFilterEnabled(value)
-    }
-
-    fun setDynamicBackgroundEnabled(value: Boolean) = viewModelScope.launch {
-        prefs.setDynamicBackgroundEnabled(value)
-    }
-
-    fun setTileOpacity(value: Float) = viewModelScope.launch {
-        prefs.setTileOpacity(value)
-    }
-
+    fun setShowNotificationDots(value: Boolean) = viewModelScope.launch { prefs.setShowNotificationDots(value) }
+    fun setShowNumericalCounts(value: Boolean) = viewModelScope.launch { prefs.setShowNumericalCounts(value) }
+    fun setNotificationFilterEnabled(value: Boolean) = viewModelScope.launch { prefs.setNotificationFilterEnabled(value) }
+    fun setDynamicBackgroundEnabled(value: Boolean) = viewModelScope.launch { prefs.setDynamicBackgroundEnabled(value) }
+    fun setTileOpacity(value: Float) = viewModelScope.launch { prefs.setTileOpacity(value) }
     fun setGrayscaleMode(value: Boolean) = viewModelScope.launch {
         prefs.setGrayscaleMode(value)
         iconCache.clearCache()
     }
-
-    fun setVerticalScrolling(value: Boolean) = viewModelScope.launch {
-        prefs.setVerticalScrolling(value)
-    }
-
-    fun setShowWeatherInfo(value: Boolean) = viewModelScope.launch {
-        prefs.setShowWeatherInfo(value)
-    }
-
+    fun setVerticalScrolling(value: Boolean) = viewModelScope.launch { prefs.setVerticalScrolling(value) }
+    fun setShowWeatherInfo(value: Boolean) = viewModelScope.launch { prefs.setShowWeatherInfo(value) }
     fun setIconPackPackage(value: String?) = viewModelScope.launch {
         prefs.setIconPackPackage(value)
         iconCache.clearCache()
     }
 
-    suspend fun exportSettings(): String {
-        return prefs.exportSettings()
-    }
+    suspend fun exportSettings(): String = prefs.exportSettings()
+    suspend fun importSettings(json: String): Boolean = prefs.importSettings(json)
 
-    suspend fun importSettings(json: String): Boolean {
-        return prefs.importSettings(json)
-    }
-
+    /**
+     * Returns a list of all installed apps with launcher category.
+     */
     fun getInstalledApps(): List<Pair<String, String>> {
-        val intent = Intent(Intent.ACTION_MAIN)
-        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val intent = Intent(Intent.ACTION_MAIN).apply {
+            addCategory(Intent.CATEGORY_LAUNCHER)
+        }
         return pm.queryIntentActivities(intent, 0)
             .asSequence()
             .map { it.activityInfo.packageName to (it.loadLabel(pm).toString()) }
@@ -461,6 +291,9 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             .toList()
     }
 
+    /**
+     * Returns a list of installed apps filtered by tile category keywords/intents.
+     */
     fun getInstalledAppsForTile(tileId: Int): List<Pair<String, String>> {
         val allApps = getInstalledApps()
         
@@ -488,10 +321,7 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
             else -> allApps
         }
 
-        // Distinct by package name and sorted by label
         val result = filtered.asSequence().distinctBy { it.first }.sortedBy { it.second }.toList()
-        
-        // If filter is too strict and returns nothing, fallback to all apps so the user isn't stuck
         return result.ifEmpty { allApps }
     }
 
@@ -508,20 +338,23 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
+    /**
+     * Returns a list of installed icon packs.
+     */
     fun getInstalledIconPacks(): List<Pair<String, String>> {
         val iconPacks = mutableListOf<Pair<String, String>>()
-        val intent = Intent("com.novalauncher.THEME")
-        val infos = pm.queryIntentActivities(intent, 0)
-        for (info in infos) {
-            iconPacks.add(info.activityInfo.packageName to info.loadLabel(pm).toString())
-        }
-
-        val adwIntent = Intent("org.adw.launcher.THEMES")
-        val adwInfos = pm.queryIntentActivities(adwIntent, 0)
-        for (info in adwInfos) {
-            val pkg = info.activityInfo.packageName
-            if (iconPacks.none { it.first == pkg }) {
-                iconPacks.add(pkg to info.loadLabel(pm).toString())
+        val intents = listOf(
+            Intent("com.novalauncher.THEME"),
+            Intent("org.adw.launcher.THEMES")
+        )
+        
+        for (intent in intents) {
+            val infos = pm.queryIntentActivities(intent, 0)
+            for (info in infos) {
+                val pkg = info.activityInfo.packageName
+                if (iconPacks.none { it.first == pkg }) {
+                    iconPacks.add(pkg to info.loadLabel(pm).toString())
+                }
             }
         }
 

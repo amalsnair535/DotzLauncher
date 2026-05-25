@@ -18,6 +18,24 @@ import com.dotz.launcher.ui.components.StaticHeader
 import com.dotz.launcher.viewmodel.LauncherUiState
 import kotlin.math.abs
 
+/**
+ * The main home screen of the Dotz Launcher.
+ * Displays a fixed header with system info and a pager containing app grids.
+ *
+ * @param uiState Current UI state from the ViewModel.
+ * @param iconCache Cache manager for app icons.
+ * @param onTileTap Callback for when an app tile is tapped.
+ * @param onTileLongPress Callback for when an app tile is long-pressed.
+ * @param onLauncherSettingsTap Callback for when the settings icon is tapped.
+ * @param onWifiToggle Callback to toggle Wi-Fi.
+ * @param onBluetoothToggle Callback to toggle Bluetooth.
+ * @param onSilentToggle Callback to toggle silent mode.
+ * @param onTorchToggle Callback to toggle the flashlight.
+ * @param onAirplaneToggle Callback to toggle airplane mode.
+ * @param onDarkModeToggle Callback to toggle dark mode.
+ * @param onDataClick Callback to open mobile data settings.
+ * @param onWeatherClick Callback to open the weather app.
+ */
 @Composable
 fun DotzHomeScreen(
     uiState: LauncherUiState,
@@ -46,7 +64,7 @@ fun DotzHomeScreen(
             DynamicBackground(enabled = uiState.settings.dynamicBackgroundEnabled)
             
             Column(modifier = Modifier.fillMaxSize()) {
-                // ── Fixed Header (Integrated with Detox Panel) ────────────────────
+                // ── Fixed Header ──────────────────────────────────────────────
                 StaticHeader(
                     batteryLevel  = uiState.batteryLevel,
                     networkStatus = uiState.networkStatus,
