@@ -23,11 +23,17 @@ data class AppTile(
     val isInstalled: Boolean = true,
 )
 
+/**
+ * Categories for the different tile slots.
+ */
 enum class TileType {
     CALL, WHATSAPP, MESSAGE, MAPS, MUSIC, PAY,
     CAMERA, CALCULATOR, CLOCK, CALENDAR, NOTES, SETTINGS
 }
 
+/**
+ * Default configurations and fallbacks for the launcher's app grid.
+ */
 object DefaultApps {
 
     /** Page 0 — Primary / Communication */

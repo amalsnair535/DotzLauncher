@@ -24,15 +24,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import com.dotz.launcher.R
 import com.dotz.launcher.ui.theme.DotzColors
 import com.dotz.launcher.ui.theme.DotzTheme
 import com.dotz.launcher.viewmodel.LauncherViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * Activity for managing launcher settings and preferences.
+ */
 class DotzSettingsActivity : ComponentActivity() {
 
     private val viewModel: LauncherViewModel by viewModels()
@@ -48,7 +53,7 @@ class DotzSettingsActivity : ComponentActivity() {
                 val context = LocalContext.current
 
                 val exportLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.CreateDocument("application/json"),
+                    contract = ActivityResultContracts.CreateDocument(context.getString(R.string.backup_mime_type)),
                 ) { uri ->
                     uri?.let {
                         scope.launch {
@@ -56,7 +61,7 @@ class DotzSettingsActivity : ComponentActivity() {
                             contentResolver.openOutputStream(it)?.use { out ->
                                 out.write(json.toByteArray())
                             }
-                            Toast.makeText(context, "Settings exported", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.toast_settings_exported), Toast.LENGTH_SHORT).show()
                         }
                     }
                 }
@@ -70,9 +75,9 @@ class DotzSettingsActivity : ComponentActivity() {
                             if (json != null) {
                                 val success = viewModel.importSettings(json)
                                 if (success) {
-                                    Toast.makeText(context, "Settings imported", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.toast_settings_imported), Toast.LENGTH_SHORT).show()
                                 } else {
-                                    Toast.makeText(context, "Import failed", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.toast_import_failed), Toast.LENGTH_SHORT).show()
                                 }
                             }
                         }
@@ -92,8 +97,8 @@ class DotzSettingsActivity : ComponentActivity() {
                     onDynamicBgToggle = viewModel::setDynamicBackgroundEnabled,
                     onIconPackChange  = viewModel::setIconPackPackage,
                     iconPacks         = remember { viewModel.getInstalledIconPacks() },
-                    onExport          = { exportLauncher.launch("dotz_backup.json") },
-                    onImport          = { importLauncher.launch("application/json") },
+                    onExport          = { exportLauncher.launch(context.getString(R.string.backup_filename)) },
+                    onImport          = { importLauncher.launch(context.getString(R.string.backup_mime_type)) },
                     isDefaultLauncher = uiState.isDefaultLauncher,
                     onSetDefault      = viewModel::openDefaultLauncherSettings,
                     onAboutClick      = {
@@ -136,7 +141,7 @@ private fun DotzSettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "DOTZ SETTINGS",
+                        text = stringResource(R.string.settings_title_uppercase),
                         fontSize = 14.sp,
                         letterSpacing = 2.sp,
                         fontWeight = FontWeight.Normal,
@@ -145,7 +150,7 @@ private fun DotzSettingsScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = DotzColors.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.content_description_back), tint = DotzColors.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
@@ -159,46 +164,46 @@ private fun DotzSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // ── Section: App Selection ────────────────────────────────────
-            item { SectionHeader("APP SELECTION") }
+            item { SectionHeader(stringResource(R.string.section_app_selection)) }
             item {
                 AppSelectionMenuRow(onClick = onAppSelectionClick)
             }
 
             // ── Section: General ──────────────────────────────────────────
             if (!isDefaultLauncher) {
-                item { Spacer(Modifier.height(8.dp)); SectionHeader("GENERAL") }
+                item { Spacer(Modifier.height(8.dp)); SectionHeader(stringResource(R.string.section_general)) }
                 item {
                     SettingsActionRow(
-                        label = "Set Dotz as Default Launcher",
+                        label = stringResource(R.string.settings_set_default),
                         onClick = onSetDefault
                     )
                 }
             }
 
             // ── Section: Notifications ────────────────────────────────────
-            item { Spacer(Modifier.height(8.dp)); SectionHeader("NOTIFICATIONS") }
+            item { Spacer(Modifier.height(8.dp)); SectionHeader(stringResource(R.string.section_notifications)) }
             item {
                 SettingsToggleRow(
-                    label   = "Show Notification Dots",
+                    label   = stringResource(R.string.settings_show_dots),
                     checked = settings.showNotificationDots,
                     onToggle = onShowDots
                 )
             }
             item {
                 SettingsToggleRow(
-                    label   = "Show Numerical Counts for Calls/SMS",
+                    label   = stringResource(R.string.settings_show_counts),
                     checked = settings.showNumericalCounts,
                     onToggle = onShowCounts
                 )
             }
             item {
                 SettingsToggleRow(
-                    label   = "Filter Distracting Notifications",
+                    label   = stringResource(R.string.settings_filter_notifications),
                     checked = settings.notificationFilterEnabled,
                     onToggle = onNotificationFilterToggle
                 )
                 Text(
-                    "Hides dots for social media apps",
+                    stringResource(R.string.settings_filter_notifications_desc),
                     color = DotzColors.White.copy(alpha = 0.4f),
                     fontSize = 11.sp,
                     modifier = Modifier.padding(start = 20.dp, bottom = 8.dp)
@@ -206,7 +211,7 @@ private fun DotzSettingsScreen(
             }
 
             // ── Section: Appearance ───────────────────────────────────────
-            item { Spacer(Modifier.height(8.dp)); SectionHeader("APPEARANCE") }
+            item { Spacer(Modifier.height(8.dp)); SectionHeader(stringResource(R.string.section_appearance)) }
             item {
                 Column(
                     modifier = Modifier
@@ -218,7 +223,7 @@ private fun DotzSettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("Tile Opacity", color = DotzColors.White, fontSize = 14.sp)
+                        Text(stringResource(R.string.settings_tile_opacity), color = DotzColors.White, fontSize = 14.sp)
                         Text(
                             "${(settings.tileOpacity * 100).toInt()}%",
                             color = DotzColors.White.copy(alpha = 0.5f), fontSize = 14.sp
@@ -238,7 +243,7 @@ private fun DotzSettingsScreen(
             }
             item {
                 SettingsToggleRow(
-                    label   = "Grayscale Mode",
+                    label   = stringResource(R.string.settings_grayscale_mode),
                     checked = settings.grayscaleMode,
                     onToggle = onGrayscaleToggle
                 )
@@ -246,7 +251,7 @@ private fun DotzSettingsScreen(
 
             item {
                 SettingsToggleRow(
-                    label   = "Vertical Scrolling",
+                    label   = stringResource(R.string.settings_vertical_scrolling),
                     checked = settings.verticalScrolling,
                     onToggle = onVerticalScrollToggle
                 )
@@ -254,7 +259,7 @@ private fun DotzSettingsScreen(
 
             item {
                 SettingsToggleRow(
-                    label   = "Show Weather Info",
+                    label   = stringResource(R.string.settings_show_weather),
                     checked = settings.showWeatherInfo,
                     onToggle = onWeatherToggle
                 )
@@ -262,7 +267,7 @@ private fun DotzSettingsScreen(
 
             item {
                 SettingsToggleRow(
-                    label   = "Dynamic Background",
+                    label   = stringResource(R.string.settings_dynamic_background),
                     checked = settings.dynamicBackgroundEnabled,
                     onToggle = onDynamicBgToggle
                 )
@@ -270,27 +275,27 @@ private fun DotzSettingsScreen(
 
             item {
                 IconPackSelectionRow(
-                    currentIconPack = settings.iconPackPackage ?: "Default",
+                    currentIconPack = settings.iconPackPackage ?: stringResource(R.string.default_icon_pack),
                     iconPacks = iconPacks,
                     onClick = { showIconPackDialog = true }
                 )
             }
 
             // ── Section: Backup & Restore ─────────────────────────────────
-            item { Spacer(Modifier.height(8.dp)); SectionHeader("BACKUP & RESTORE") }
+            item { Spacer(Modifier.height(8.dp)); SectionHeader(stringResource(R.string.section_backup_restore)) }
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     BackupButton(
-                        label   = "Export",
+                        label   = stringResource(R.string.btn_export),
                         icon    = Icons.Default.Download,
                         modifier = Modifier.weight(1f),
                         onClick = onExport
                     )
                     BackupButton(
-                        label   = "Import",
+                        label   = stringResource(R.string.btn_import),
                         icon    = Icons.Default.Upload,
                         modifier = Modifier.weight(1f),
                         onClick = onImport
@@ -299,10 +304,10 @@ private fun DotzSettingsScreen(
             }
 
             // ── Section: About ────────────────────────────────────────────
-            item { Spacer(Modifier.height(8.dp)); SectionHeader("INFO") }
+            item { Spacer(Modifier.height(8.dp)); SectionHeader(stringResource(R.string.section_info)) }
             item {
                 SettingsActionRow(
-                    label = "About Dotz",
+                    label = stringResource(R.string.settings_about_dotz),
                     onClick = onAboutClick
                 )
             }
@@ -333,7 +338,7 @@ private fun AppSelectionMenuRow(onClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text("App Selection", color = DotzColors.White, fontSize = 14.sp)
+        Text(stringResource(R.string.settings_app_selection), color = DotzColors.White, fontSize = 14.sp)
         Icon(
             Icons.Default.ChevronRight,
             contentDescription = null,
@@ -368,7 +373,7 @@ private fun IconPackSelectionRow(
     iconPacks: List<Pair<String, String>>,
     onClick: () -> Unit
 ) {
-    val displayName = if (currentIconPack == "Default") "Default" 
+    val displayName = if (currentIconPack == stringResource(R.string.default_icon_pack)) stringResource(R.string.default_icon_pack) 
                       else iconPacks.find { it.first == currentIconPack }?.second ?: currentIconPack
 
     Row(
@@ -381,7 +386,7 @@ private fun IconPackSelectionRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Text("Icon Pack", color = DotzColors.White, fontSize = 14.sp)
+            Text(stringResource(R.string.settings_icon_pack), color = DotzColors.White, fontSize = 14.sp)
             Text(
                 displayName,
                 color    = DotzColors.White.copy(alpha = 0.35f),
@@ -407,12 +412,13 @@ private fun IconPackDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor   = DotzColors.Tile,
-        title = { Text("Select Icon Pack", color = DotzColors.White, fontSize = 16.sp) },
+        title = { Text(stringResource(R.string.select_icon_pack_title), color = DotzColors.White, fontSize = 16.sp) },
         text = {
             LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
                 item {
+                    val defaultLabel = stringResource(R.string.default_icon_pack)
                     Text(
-                        "Default",
+                        defaultLabel,
                         color = if (currentIconPack == null) DotzColors.White else DotzColors.White.copy(alpha = 0.6f),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -437,7 +443,7 @@ private fun IconPackDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("CANCEL", color = DotzColors.White, fontSize = 13.sp)
+                Text(stringResource(R.string.btn_cancel), color = DotzColors.White, fontSize = 13.sp)
             }
         }
     )

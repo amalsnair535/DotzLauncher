@@ -16,6 +16,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.dotz.launcher.ui.theme.DotzColors
 
+/**
+ * A quick-settings panel containing system toggles.
+ */
 @Composable
 fun DetoxPanel(
     isWifiEnabled: Boolean,

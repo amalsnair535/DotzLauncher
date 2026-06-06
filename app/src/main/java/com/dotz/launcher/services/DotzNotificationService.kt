@@ -15,9 +15,14 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
- * Tracks active notifications and exposes them as a StateFlow.
- * The companion object acts as a singleton store accessible from
- * the ViewModel without requiring a bound service connection.
+ * Service that listens for incoming notifications to display badge counts on app tiles.
+ *
+ * This service must be enabled by the user in system settings.
+ * It also implements a distraction filter to hide notifications from specific apps
+ * if configured in the launcher settings.
+ *
+ * The companion object acts as a singleton store accessible from the ViewModel
+ * without requiring a bound service connection.
  */
 class DotzNotificationService : NotificationListenerService() {
 

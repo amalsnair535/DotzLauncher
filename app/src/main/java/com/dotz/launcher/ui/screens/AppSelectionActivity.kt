@@ -24,15 +24,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.view.WindowCompat
+import com.dotz.launcher.R
+import com.dotz.launcher.data.IconCacheManager
 import com.dotz.launcher.ui.theme.DotzColors
 import com.dotz.launcher.ui.theme.DotzTheme
 import com.dotz.launcher.viewmodel.LauncherViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
+/**
+ * Activity for selecting an app to assign to a tile.
+ * Displays a list of recommended apps based on the tile category.
+ */
 class AppSelectionActivity : ComponentActivity() {
 
     private val viewModel: LauncherViewModel by viewModels()
@@ -52,7 +61,9 @@ class AppSelectionActivity : ComponentActivity() {
             DotzTheme(settings = uiState.settings) {
                 AppSelectionScreen(
                     apps    = installedApps,
-                    title   = "SELECT $tileLabel APP",
+                    title   = stringResource(R.string.select_app_title_format, tileLabel),
+                    iconCache = viewModel.iconCache,
+                    iconPackPackage = uiState.settings.iconPackPackage,
                     onBack  = { finish() }
                 ) { pkg, label ->
                     viewModel.updateTileOverride(tileId, pkg, label.uppercase())
@@ -68,6 +79,8 @@ class AppSelectionActivity : ComponentActivity() {
 private fun AppSelectionScreen(
     apps: List<Pair<String, String>>,
     title: String,
+    iconCache: IconCacheManager,
+    iconPackPackage: String?,
     onBack: () -> Unit,
     onSelect: (String, String) -> Unit,
 ) {
@@ -91,7 +104,7 @@ private fun AppSelectionScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back", tint = DotzColors.White)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.content_description_back), tint = DotzColors.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Black),
@@ -110,7 +123,7 @@ private fun AppSelectionScreen(
                 value         = query,
                 onValueChange = { query = it },
                 modifier      = Modifier.fillMaxWidth().padding(vertical = 12.dp),
-                placeholder   = { Text("Search apps…", color = DotzColors.White.copy(alpha = 0.3f)) },
+                placeholder   = { Text(stringResource(R.string.search_apps_placeholder), color = DotzColors.White.copy(alpha = 0.3f)) },
                 leadingIcon   = { Icon(Icons.Default.Search, null, tint = DotzColors.White.copy(alpha = 0.5f)) },
                 singleLine    = true,
                 colors        = OutlinedTextFieldDefaults.colors(
@@ -127,6 +140,8 @@ private fun AppSelectionScreen(
                     AppRow(
                         pkg = pkg, 
                         label = label, 
+                        iconCache = iconCache,
+                        iconPackPackage = iconPackPackage,
                         onClick = { 
                             onSelect(pkg, label)
                         }
@@ -138,9 +153,33 @@ private fun AppSelectionScreen(
 }
 
 @Composable
-private fun AppRow(pkg: String, label: String, onClick: () -> Unit) {
-    val context = LocalContext.current
-    val icon = remember(pkg) { loadIcon(context, pkg) }
+private fun AppRow(
+    pkg: String, 
+    label: String, 
+    iconCache: IconCacheManager,
+    iconPackPackage: String?,
+    onClick: () -> Unit
+) {
+    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(
+        initialValue = null,
+        key1 = pkg,
+        key2 = iconPackPackage
+    ) {
+        val bitmap = withContext(Dispatchers.IO) {
+            val cached = iconCache.getIcon(pkg, iconPackPackage, false)
+            if (cached != null) {
+                cached.asImageBitmap()
+            } else {
+                iconCache.loadIcon(pkg, iconPackPackage)?.let { drawable ->
+                    iconCache.saveIcon(pkg, iconPackPackage, false, drawable)
+                    val width = if (drawable.intrinsicWidth > 0) drawable.intrinsicWidth else 512
+                    val height = if (drawable.intrinsicHeight > 0) drawable.intrinsicHeight else 512
+                    drawable.toBitmap(width, height).asImageBitmap()
+                }
+            }
+        }
+        value = bitmap
+    }
 
     Row(
         modifier = Modifier
@@ -151,10 +190,9 @@ private fun AppRow(pkg: String, label: String, onClick: () -> Unit) {
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (icon != null) {
-            val bmp = remember(icon) { icon.toBitmap().asImageBitmap() }
+        if (iconBitmap != null) {
             Image(
-                bitmap             = bmp,
+                bitmap             = iconBitmap!!,
                 contentDescription = label,
                 modifier           = Modifier.size(36.dp)
             )
@@ -168,7 +206,3 @@ private fun AppRow(pkg: String, label: String, onClick: () -> Unit) {
         }
     }
 }
-
-private fun loadIcon(context: Context, pkg: String): Drawable? = try {
-    context.packageManager.getApplicationIcon(pkg)
-} catch (_: Exception) { null }

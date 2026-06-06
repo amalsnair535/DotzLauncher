@@ -10,6 +10,23 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
+/**
+ * Data class representing the launcher's settings.
+ *
+ * @property showNotificationDots Whether to show notification badges on tiles.
+ * @property showNumericalCounts Whether to show numerical counts in badges (where supported).
+ * @property tileOpacity Opacity of the app tiles (0.6 - 1.0).
+ * @property grayscaleMode Whether to render icons in grayscale.
+ * @property iconPackPackage Package name of the selected icon pack, if any.
+ * @property themeId Identifier of the selected theme preset.
+ * @property useAdaptiveTheme Whether to use system-wide adaptive colors.
+ * @property notificationFilterEnabled Whether the distraction-free notification filter is active.
+ * @property dynamicBackgroundEnabled Whether the animated background is enabled.
+ * @property verticalScrolling Whether to scroll between pages vertically.
+ * @property showWeatherInfo Whether to show weather info in the header.
+ * @property tileOverrides Map of tileId to custom package name assignments.
+ * @property tileLabels Map of tileId to custom labels.
+ */
 data class DotzSettings(
     val showNotificationDots: Boolean = true,
     val showNumericalCounts: Boolean = true,
@@ -44,6 +61,11 @@ object PrefsKeys {
     fun tileLabel(id: Int)    = stringPreferencesKey("tile_label_$id")
 }
 
+/**
+ * Repository for managing user preferences using Jetpack DataStore.
+ *
+ * @param context The application context.
+ */
 class DotzPreferencesRepository(private val context: Context) {
 
     val settingsFlow: Flow<DotzSettings> = context.dataStore.data

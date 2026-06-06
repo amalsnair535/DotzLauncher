@@ -7,14 +7,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.dotz.launcher.R
 import com.dotz.launcher.ui.theme.DotzType
 import kotlinx.coroutines.delay
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * The top header of the launcher, displaying time, date, battery, network, weather,
+ * and the [DetoxPanel].
+ */
 @Composable
 fun StaticHeader(
     batteryLevel: Int,
@@ -38,14 +44,17 @@ fun StaticHeader(
     onWeatherClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var timeText by remember { mutableStateOf(currentTime()) }
-    var dateText by remember { mutableStateOf(currentDate()) }
+    val timeFormat = stringResource(R.string.time_format)
+    val dateFormat = stringResource(R.string.date_format)
 
-    LaunchedEffect(Unit) {
+    var timeText by remember { mutableStateOf(currentTime(timeFormat)) }
+    var dateText by remember { mutableStateOf(currentDate(dateFormat)) }
+
+    LaunchedEffect(timeFormat, dateFormat) {
         while (true) {
             delay(30_000L)
-            timeText = currentTime()
-            dateText = currentDate()
+            timeText = currentTime(timeFormat)
+            dateText = currentDate(dateFormat)
         }
     }
 
@@ -145,10 +154,10 @@ fun StaticHeader(
     }
 }
 
-private fun currentTime(): String =
-    SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+private fun currentTime(format: String): String =
+    SimpleDateFormat(format, Locale.getDefault()).format(Date())
 
-private fun currentDate(): String =
-    SimpleDateFormat("EEE, dd MMM", Locale.getDefault())
+private fun currentDate(format: String): String =
+    SimpleDateFormat(format, Locale.getDefault())
         .format(Date())
         .uppercase(Locale.getDefault())
